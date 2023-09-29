@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "383554504157",
-    "project_id": "mybereal-cac09",
-    "storage_bucket": "mybereal-cac09.appspot.com"
+    "project_number": "75826378780",
+    "project_id": "mybereal-f03e7",
+    "storage_bucket": "mybereal-f03e7.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:383554504157:android:a659bd1dadea394d24e234",
+        "mobilesdk_app_id": "1:75826378780:android:b5a4e96f9baf1ae89f07d9",
         "android_client_info": {
           "package_name": "com.example.my_be_real"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC9dD_EhrFSngn7ZR_npz1raocfbfuZ4N8"
+          "current_key": "AIzaSyAk0Qk8bJpICD9tvtE5j3uCydXNjWxglXo"
         }
       ],
       "services": {
