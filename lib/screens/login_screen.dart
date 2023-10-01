@@ -1,7 +1,8 @@
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gradient_widgets/gradient_widgets.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:my_be_real/widgets/custom_textfield_widget.dart';
 import 'package:typewritertext/typewritertext.dart';
 
@@ -17,6 +18,7 @@ class LoginScreen extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        centerTitle: true,
         toolbarHeight: 75,
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -27,22 +29,19 @@ class LoginScreen extends StatelessWidget {
             fontFamily: 'Roboto',
             color: Colors.white,
           ),
+          textAlign: TextAlign.center,
         ),
       ),
       body: Stack(
         children: [
           AnimateGradient(
             primaryColors: const [
-              Color(0xFF6d42b3),
-              Color(0xFFBEA9DF),
-              Color(0XFFded3ee),
-              Color(0Xffffffeb),
+              Color(0xFF96d4ca),
+              Color(0xFF7c65a9),
             ],
             secondaryColors: const [
-              Color(0XFFFBA1B7),
-              Color(0XFFFDC4D2),
-              Color(0XFFFFE5E5),
-              Color(0Xffffffeb),
+              Color(0xFF7c65a9),
+              Color(0XFFf5ccd4),
             ],
           ),
           Center(
@@ -55,7 +54,7 @@ class LoginScreen extends StatelessWidget {
                     maxLines: 10,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Colors.white,
                       fontSize: 30,
                     ),
                   ),
@@ -82,34 +81,25 @@ class LoginScreen extends StatelessWidget {
                   child: Text(
                     '¿Has olvidado tu contraseña?',
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-                GradientButton(
-                  callback: () {
-                    FirebaseAuth.instance.signInWithEmailAndPassword(
-                      email: usernameController.text,
-                      password: passwordController.text,
-                    );
-                    //return context.go('img_grid');
-                  },
-                  gradient: Gradients.buildGradient(
-                    Alignment.topCenter,
-                    Alignment.bottomCenter,
-                    [Colors.black, Colors.black],
-                  ),
-                  shadowColor: Colors.black87,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  increaseHeightBy: 20,
-                  increaseWidthBy: 305,
-                  child: const Text(
-                    'Iniciar sesión',
-                    style: TextStyle(
-                      fontSize: 17,
+                SizedBox(
+                  height: 60,
+                  width: 393,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      FirebaseAuth.instance.signInWithEmailAndPassword(
+                          email: usernameController.text,
+                          password: passwordController.text);
+                      Get.offNamed('/home');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black, // Background color
                     ),
+                    child: const Text('Iniciar Sesión',
+                        style: TextStyle(fontSize: 17, color: Colors.white)),
                   ),
                 ),
                 const SizedBox(height: 50),

@@ -16,22 +16,17 @@ class SplashScreen extends StatelessWidget {
           fullscreenDialog: true,
           preventDuplicates: true),
     );
-
     return Scaffold(
       body: Stack(
         children: [
           AnimateGradient(
             primaryColors: const [
-              Color(0xFF6d42b3),
-              Color(0xFFBEA9DF),
-              Color(0XFFded3ee),
-              Color(0Xffffffeb),
+              Color(0xFF96d4ca),
+              Color(0xFF7c65a9),
             ],
             secondaryColors: const [
-              Color(0XFFFBA1B7),
-              Color(0XFFFDC4D2),
-              Color(0XFFFFE5E5),
-              Color(0Xffffffeb),
+              Color(0xFF7c65a9),
+              Color(0XFFf5ccd4),
             ],
           ),
           const Center(
@@ -47,6 +42,7 @@ class SplashScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 48.0,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white
                   ),
                 ),
                 SizedBox(height: 16.0),

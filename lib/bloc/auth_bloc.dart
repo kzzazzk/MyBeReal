@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:my_be_real/states/auth_state.dart';
+import 'package:my_be_real/bloc/auth_state.dart';
 
-import 'events/auth_event.dart';
+import 'auth_event.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
