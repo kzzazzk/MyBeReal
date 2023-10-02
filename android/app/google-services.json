@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "75826378780",
+    "firebase_url": "https://mybereal-f03e7-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "mybereal-f03e7",
     "storage_bucket": "mybereal-f03e7.appspot.com"
   },
@@ -12,7 +13,12 @@
           "package_name": "com.example.my_be_real"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "75826378780-edp4ah7p4r1nk2f8u9jfiumjlh6so0pe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAk0Qk8bJpICD9tvtE5j3uCydXNjWxglXo"
@@ -20,7 +26,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "75826378780-edp4ah7p4r1nk2f8u9jfiumjlh6so0pe.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "75826378780-bj6ad29ussfvmakic5ap50961acp2v9l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.myBeReal"
+              }
+            }
+          ]
         }
       }
     }
