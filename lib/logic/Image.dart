@@ -1,7 +1,6 @@
 class Image {
-  final String reference; // Reference to the image (e.g., filename, URL)
-  final DateTime
-      timestamp; // Timestamp indicating when the image was created or captured
+  final String reference;
+  final DateTime timestamp;
 
   Image({
     required this.reference,
