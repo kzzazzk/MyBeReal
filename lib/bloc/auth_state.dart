@@ -1,21 +1,29 @@
-import 'package:firebase_auth/firebase_auth.dart';
+part of 'auth_bloc.dart';
 
-abstract class AuthState {}
+abstract class AuthState extends Equatable {}
 
-class AuthInitial extends AuthState {}
-
-class AuthAuthenticated extends AuthState {
-  final User user;
-
-  AuthAuthenticated(this.user);
+class Authenticated extends AuthState {
+  @override
+  List<Object> get props => [];
 }
 
-class AuthUnauthenticated extends AuthState {}
+class Loading extends AuthState {
+  @override
+  List<Object> get props => [];
+}
 
-class AuthLoading extends AuthState {}
+class Unauthenticated extends AuthState {
+  @override
+  List<Object> get props => [];
+}
 
 class AuthError extends AuthState {
-  final String errorMessage;
+  final String errorType;
+  final String? errorMessage;
 
-  AuthError(this.errorMessage);
+  AuthError(this.errorType, {this.errorMessage});
+
+  @override
+  List<Object> get props =>
+      [errorType, if (errorMessage != null) errorMessage!];
 }

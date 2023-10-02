@@ -1,10 +1,12 @@
 import 'package:animate_gradient/animate_gradient.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:my_be_real/bloc/auth_bloc.dart';
 import 'package:my_be_real/widgets/custom_textfield_widget.dart';
 import 'package:typewritertext/typewritertext.dart';
+
+import '../widgets/custom_snackbar.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -14,6 +16,8 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AuthBloc authBloc = BlocProvider.of<AuthBloc>(context);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
@@ -45,72 +49,109 @@ class LoginScreen extends StatelessWidget {
             ],
           ),
           Center(
-            child: Column(
-              children: [
-                const SizedBox(height: 150),
-                const TypeWriterText(
-                  text: Text(
-                    'Bienvenido/a de nuevo. \nTe echábamos de menos.',
-                    maxLines: 10,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
+              child: BlocConsumer<AuthBloc, AuthState>(
+            listener: (BuildContext context, AuthState state) {
+              if (state is Authenticated) {
+                Get.offNamed('/home');
+                showCustomSnackbar(
+                  'Welcome back!',
+                  'You have successfully logged in.',
+                  SnackPosition.TOP,
+                  Colors.greenAccent,
+                  const Icon(Icons.check, color: Colors.white),
+                );
+              } else if (state is AuthError) {
+                showCustomSnackbar(
+                  state.errorType,
+                  state.errorMessage ?? '',
+                  SnackPosition.TOP,
+                  Colors.redAccent,
+                  const Icon(Icons.error, color: Colors.white),
+                );
+              }
+            },
+            builder: (BuildContext context, AuthState state) {
+              if (state is Loading) {
+                return Container(
+                  height: 100,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  child: const CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                );
+              } else {
+                return Column(
+                  children: [
+                    const SizedBox(height: 150),
+                    const TypeWriterText(
+                      text: Text(
+                        'Bienvenido/a de nuevo. \nTe echábamos de menos.',
+                        maxLines: 10,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                        ),
+                      ),
+                      duration: Duration(milliseconds: 50),
                     ),
-                  ),
-                  duration: Duration(milliseconds: 50),
-                ),
-                const SizedBox(height: 65),
-                CustomTextField(
-                  controller: usernameController,
-                  hintText: 'Correo electrónico',
-                  obscureText: false,
-                ),
-                const SizedBox(height: 10),
-                CustomTextField(
-                  controller: passwordController,
-                  hintText: 'Contraseña',
-                  obscureText: true,
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(
-                    top: 10,
-                    left: 210,
-                    bottom: 20,
-                  ),
-                  child: Text(
-                    '¿Has olvidado tu contraseña?',
-                    style: TextStyle(
-                      color: Colors.white,
+                    const SizedBox(height: 65),
+                    CustomTextField(
+                      controller: usernameController,
+                      hintText: 'Correo electrónico',
+                      obscureText: false,
                     ),
-                  ),
-                ),
-                SizedBox(
-                  height: 60,
-                  width: 393,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      FirebaseAuth.instance.signInWithEmailAndPassword(
-                          email: usernameController.text,
-                          password: passwordController.text);
-                      Get.offNamed('/home');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black, // Background color
+                    const SizedBox(height: 10),
+                    CustomTextField(
+                      controller: passwordController,
+                      hintText: 'Contraseña',
+                      obscureText: true,
                     ),
-                    child: const Text('Iniciar Sesión',
-                        style: TextStyle(fontSize: 17, color: Colors.white)),
-                  ),
-                ),
-                const SizedBox(height: 50),
-                /*Image.network(
+                    const Padding(
+                      padding: EdgeInsets.only(
+                        top: 10,
+                        left: 210,
+                        bottom: 20,
+                      ),
+                      child: Text(
+                        '¿Has olvidado tu contraseña?',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 60,
+                      width: 393,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          authBloc.add(SignInRequested(usernameController.text,
+                              passwordController.text));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black, // Background color
+                        ),
+                        child: const Text('Iniciar Sesión',
+                            style:
+                                TextStyle(fontSize: 17, color: Colors.white)),
+                      ),
+                    ),
+                    const SizedBox(height: 50),
+                    /*Image.network(
                   imgUrl, // Use imgUrl to display the image
                   width: 100,
                   height: 100,
                 ),*/
-              ],
-            ),
-          ),
+                  ],
+                );
+              }
+            },
+          )),
         ],
       ),
     );

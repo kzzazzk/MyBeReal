@@ -1,38 +1,47 @@
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:my_be_real/bloc/auth_state.dart';
+import 'package:my_be_real/repositories/auth_repository.dart';
 
-import 'auth_event.dart';
+part 'auth_event.dart';
+part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final AuthRepository authRepository;
 
-  AuthBloc() : super(AuthInitial());
-
-  Stream<AuthState> mapEventToState(AuthEvent event) async* {
-    if (event is SignInEvent) {
-      yield AuthLoading();
+  AuthBloc({required this.authRepository}) : super(Unauthenticated()) {
+    on<SignInRequested>((event, emit) async {
+      emit(Loading());
 
       try {
-        final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
-          email: event.email,
-          password: event.password,
-        );
-
-        final user = userCredential.user;
-        yield AuthAuthenticated(user!);
+        UserCredential? user = await authRepository.signIn(
+            email: event.email, password: event.password);
+        if (user != null) {
+          emit(Authenticated());
+        } else {
+          emit(AuthError("Invalid credentials.",
+              errorMessage:
+                  "Contact an administrator if you believe this is an error."));
+        }
       } catch (e) {
-        yield AuthError(e.toString());
+        emit(AuthError(
+          e.toString(),
+        ));
       }
-    } else if (event is SignOutEvent) {
-      yield AuthLoading();
+    });
 
-      try {
-        await _firebaseAuth.signOut();
-        yield AuthUnauthenticated();
-      } catch (e) {
-        yield AuthError(e.toString());
+    on<SignOutRequested>((event, emit) async {
+      if (state is Authenticated) {
+        emit(Loading()); // Emit a loading state
+        try {
+          await authRepository.signOut();
+          emit(Unauthenticated());
+        } catch (e) {
+          emit(AuthError(
+            e.toString(),
+          ));
+        }
       }
-    }
+    });
   }
 }
