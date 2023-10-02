@@ -26,11 +26,11 @@ class MyApp extends StatelessWidget {
         ),
         child: GetMaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Core Dumped APP',
+          title: 'MyBeReal.',
           theme: ThemeData(
             useMaterial3: true,
           ),
-          initialRoute: '/splash',
+          initialRoute: '/home',
           getPages: RoutesClass.routes,
         ),
       ),

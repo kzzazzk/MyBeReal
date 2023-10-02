@@ -19,9 +19,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         if (user != null) {
           emit(Authenticated());
         } else {
-          emit(AuthError("Invalid credentials.",
+          emit(AuthError("Credenciales incorrectos.",
               errorMessage:
-                  "Contact an administrator if you believe this is an error."));
+                  "Contacta con un administrador si crees que es un error."));
         }
       } catch (e) {
         emit(AuthError(

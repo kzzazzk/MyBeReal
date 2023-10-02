@@ -54,8 +54,8 @@ class LoginScreen extends StatelessWidget {
               if (state is Authenticated) {
                 Get.offNamed('/home');
                 showCustomSnackbar(
-                  'Welcome back!',
-                  'You have successfully logged in.',
+                  'Bienvenido/a de nuevo!',
+                  'Has iniciado sesión con éxito.',
                   SnackPosition.TOP,
                   Colors.greenAccent,
                   const Icon(Icons.check, color: Colors.white),
