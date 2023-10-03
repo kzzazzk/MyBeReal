@@ -35,14 +35,21 @@ class HomeScreen extends StatelessWidget {
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: ExpandableFab(
         openButtonBuilder: RotateFloatingActionButtonBuilder(
-          child: const Icon(Icons.add, size: 30),
+          shape: CircleBorder(),
+          child: const Icon(
+            Icons.add,
+            size: 30,
+            color: Colors.white,
+          ),
           fabSize: ExpandableFabSize.regular,
           backgroundColor: Colors.black,
         ),
         closeButtonBuilder: RotateFloatingActionButtonBuilder(
+          shape: CircleBorder(),
           child: const Icon(
             Icons.close,
             size: 25,
+            color: Colors.white,
           ),
           fabSize: ExpandableFabSize.regular,
           backgroundColor: Colors.black,
@@ -50,13 +57,17 @@ class HomeScreen extends StatelessWidget {
         distance: 70,
         type: ExpandableFabType.up,
         overlayStyle: ExpandableFabOverlayStyle(
-          blur: 5,
+          blur: 2,
         ),
         children: [
           FloatingActionButton(
+            shape: CircleBorder(),
             backgroundColor: Colors.black,
             heroTag: null,
-            child: const Icon(Icons.add_photo_alternate_outlined),
+            child: const Icon(
+              Icons.add_photo_alternate_outlined,
+              color: Colors.white,
+            ),
             onPressed: () {
               const SnackBar snackBar = SnackBar(
                 content: Text("SnackBar"),
@@ -66,8 +77,12 @@ class HomeScreen extends StatelessWidget {
           ),
           FloatingActionButton(
             backgroundColor: Colors.black,
+            shape: CircleBorder(),
             heroTag: null,
-            child: const Icon(Icons.add_a_photo_outlined),
+            child: const Icon(
+              Icons.add_a_photo_outlined,
+              color: Colors.white,
+            ),
             onPressed: () {
               Navigator.of(context).push(
                   MaterialPageRoute(builder: ((context) => const NextPage())));

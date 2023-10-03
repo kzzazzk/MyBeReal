@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         ),
         child: GetMaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Core Dumped APP',
+          title: 'MyBeReal.',
           theme: ThemeData(
             useMaterial3: true,
           ),
