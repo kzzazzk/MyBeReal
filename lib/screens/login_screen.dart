@@ -1,8 +1,10 @@
 import 'package:animate_gradient/animate_gradient.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:my_be_real/bloc/auth_bloc.dart';
+import 'package:my_be_real/screens/email_confirmation_screen.dart';
 import 'package:my_be_real/widgets/custom_textfield_widget.dart';
 import 'package:typewritertext/typewritertext.dart';
 
@@ -17,6 +19,8 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AuthBloc authBloc = BlocProvider.of<AuthBloc>(context);
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -112,29 +116,39 @@ class LoginScreen extends StatelessWidget {
                       hintText: 'Contraseña',
                       obscureText: true,
                     ),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(
                         top: 10,
-                        left: 210,
+                        left: screenWidth * 0.43,
                         bottom: 20,
                       ),
-                      child: Text(
-                        '¿Has olvidado tu contraseña?',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
+                      child: RichText(
+                        text: TextSpan(
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: ((context) =>
+                                        EmailConfimation())));
+                              },
+                            text: "¿Has olvidado tu contraseña?",
+                            style: const TextStyle(
+                              color: Colors.white,
+                            )),
                       ),
                     ),
                     SizedBox(
-                      height: 60,
-                      width: 393,
+                      width: screenWidth * 0.9,
+                      height: screenHeight * 0.07,
                       child: ElevatedButton(
                         onPressed: () {
                           authBloc.add(SignInRequested(usernameController.text,
                               passwordController.text));
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black, // Background color
+                          backgroundColor: Colors.indigo,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                         child: const Text('Iniciar Sesión',
                             style:
