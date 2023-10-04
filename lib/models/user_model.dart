@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_be_real/models/image_model.dart';
 
 class User {
-  List<Image> listaFotos = [];
+  List<Foto> listaFotos = [];
 
   User({
     required this.listaFotos,

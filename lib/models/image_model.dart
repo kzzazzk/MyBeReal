@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Image {
+class Foto {
   final String id;
   final Timestamp timestamp;
 
-  Image({required this.id, required this.timestamp});
+  Foto({required this.id, required this.timestamp});
 
-  factory Image.fromJson(Map<String, dynamic> json) {
-    return Image(
+  factory Foto.fromJson(Map<String, dynamic> json) {
+    return Foto(
       id: json['id'],
       timestamp: json['timestamp'],
     );

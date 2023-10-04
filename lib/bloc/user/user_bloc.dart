@@ -11,9 +11,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<GetUserRequested>((event, emit) async {
       emit(UserLoading());
       try {
-        User? user = await userRepository.getUserByEmail(event.email);
-        if (user != null) {
-          emit(UserLoaded(user));
+        List<User?> users = await userRepository.getUserByEmail(event.email);
+        print(users[1]);
+        if (!users.contains(null)) {
+          emit(UserLoaded(users[0]!, users[1]!));
         } else {
           emit(UserError("Error al cargar el usuario.",
               errorMessage:

@@ -13,8 +13,9 @@ class UserLoading extends UserState {}
 
 class UserLoaded extends UserState {
   final User user;
+  final User user2;
 
-  UserLoaded(this.user);
+  UserLoaded(this.user, this.user2);
 
   @override
   List<Object> get props => [user];

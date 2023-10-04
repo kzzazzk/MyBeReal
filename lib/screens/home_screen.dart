@@ -5,8 +5,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:my_be_real/bloc/user/user_bloc.dart';
+import 'package:my_be_real/bloc/user/user_event.dart';
 import 'package:my_be_real/bloc/user/user_state.dart';
+import 'package:my_be_real/models/image_model.dart';
 import 'package:my_be_real/models/user_model.dart';
+import 'package:my_be_real/repositories/user_repository.dart';
 import 'package:my_be_real/utils/constants.dart';
 import 'package:my_be_real/widgets/custom_snackbar.dart';
 
@@ -19,17 +22,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-String? getEmailFromTheOtherUser(User user) {
-  if (Constants.userEmail == DotEnv().env['ZAKA_ID']) {
-    return DotEnv().env['ADRI_ID'];
-  } else {
-    return DotEnv().env['ZAKA_ID'];
-  }
-}
-
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  User? user;
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -38,33 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> widgetOptions = <Widget>[
-      GridView.count(
-        crossAxisCount: 2,
-        children: List.generate(user!.listaFotos.length, (index) {
-          return Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Center(
-                child: Image.network(
-              user!.listaFotos[index].id,
-            )),
-          );
-        }),
-      ),
-      GridView.count(
-        // Create a grid with 2 columns. If you change the scrollDirection to
-        // horizontal, this produces 2 rows.
-        crossAxisCount: 2,
-        // Generate 100 widgets that display their index in the List.
-        children: List.generate(1, (index) {
-          return Center(
-            child: Text(
-              'Item $index',
-            ),
-          );
-        }),
-      ),
-    ];
+    final UserBloc userBloc = BlocProvider.of<UserBloc>(context);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
@@ -113,13 +81,39 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             }
           }, builder: (BuildContext context, UserState state) {
-            if (state is UserLoading) {
+            if (state is UserInitial || state is UserLoading) {
+              userBloc.add(GetUserRequested(Constants.userEmail));
               return const Center(
                 child: CircularProgressIndicator(),
               );
             } else if (state is UserLoaded) {
-              user = state.user;
-              return widgetOptions.elementAt(_selectedIndex);
+              return _selectedIndex == 0
+                  ? GridView.count(
+                      crossAxisCount: 2,
+                      children:
+                          List.generate(state.user.listaFotos.length, (index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Center(
+                              child: Image.network(
+                            state.user.listaFotos[index].id,
+                          )),
+                        );
+                      }),
+                    )
+                  : GridView.count(
+                      crossAxisCount: 2,
+                      children:
+                          List.generate(state.user2.listaFotos.length, (index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Center(
+                              child: Image.network(
+                            state.user2.listaFotos[index].id,
+                          )),
+                        );
+                      }),
+                    );
             } else {
               return const Center(
                 child: Text('Error al cargar el usuario.'),
