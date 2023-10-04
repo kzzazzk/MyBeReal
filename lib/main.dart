@@ -1,4 +1,3 @@
-import 'package:connectivity/connectivity.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_be_real/bloc/auth/auth_bloc.dart';
+import 'package:my_be_real/bloc/user/user_bloc.dart';
 import 'package:my_be_real/firebase/firebase_options.dart';
 import 'package:my_be_real/repositories/auth_repository.dart';
 import 'package:my_be_real/repositories/user_repository.dart';
@@ -16,12 +16,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
-  var connectivityResult = await (Connectivity().checkConnectivity());
-  if (connectivityResult == ConnectivityResult.none) {
-    print('No internet connection');
-  } else {
-    print('Internet connection available');
-  }
 }
 
 class MyApp extends StatelessWidget {
@@ -43,6 +37,11 @@ class MyApp extends StatelessWidget {
           BlocProvider<AuthBloc>(
             create: (context) => AuthBloc(
               authRepository: context.read<AuthRepository>(),
+            ),
+          ),
+          BlocProvider<UserBloc>(
+            create: (context) => UserBloc(
+              userRepository: context.read<UserRepository>(),
             ),
           ),
         ],

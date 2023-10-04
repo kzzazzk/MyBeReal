@@ -5,10 +5,14 @@ import 'package:my_be_real/models/user_model.dart';
 class UserRepository {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
-  Future<User> getUserByEmail(String correo) async {
+  Future<User?> getUserByEmail(String correo) async {
     try {
       DocumentSnapshot userDoc =
           await _firebaseFirestore.collection('users').doc(correo).get();
+
+      if (!userDoc.exists) {
+        return null;
+      }
 
       List<dynamic> listaFotosDoc = userDoc.get('lista_fotos');
 
@@ -31,14 +35,9 @@ class UserRepository {
           ),
         );
       }
-      print(listaFotos);
       return User(listaFotos: listaFotos);
     } catch (e) {
-      print(e);
       throw Exception('Error al obtener el usuario');
     }
   }
 }
-/*zsahraoui20@gmail.com
-danaurav@gmail.com
-ahouchsalim@gmail.com*/

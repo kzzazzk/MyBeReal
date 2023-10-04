@@ -19,3 +19,14 @@ class UserLoaded extends UserState {
   @override
   List<Object> get props => [user];
 }
+
+class UserError extends UserState {
+  final String errorType;
+  final String? errorMessage;
+
+  UserError(this.errorType, {this.errorMessage});
+
+  @override
+  List<Object> get props =>
+      [errorType, if (errorMessage != null) errorMessage!];
+}

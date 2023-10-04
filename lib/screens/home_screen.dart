@@ -1,17 +1,88 @@
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:get/get_navigation/src/snackbar/snackbar.dart';
+import 'package:my_be_real/bloc/user/user_bloc.dart';
+import 'package:my_be_real/bloc/user/user_state.dart';
+import 'package:my_be_real/models/user_model.dart';
+import 'package:my_be_real/utils/constants.dart';
+import 'package:my_be_real/widgets/custom_snackbar.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+String? getEmailFromTheOtherUser(User user) {
+  if (Constants.userEmail == DotEnv().env['ZAKA_ID']) {
+    return DotEnv().env['ADRI_ID'];
+  } else {
+    return DotEnv().env['ZAKA_ID'];
+  }
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+  User? user;
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final List<Widget> widgetOptions = <Widget>[
+      GridView.count(
+        crossAxisCount: 2,
+        children: List.generate(user!.listaFotos.length, (index) {
+          return Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Center(
+                child: Image.network(
+              user!.listaFotos[index].id,
+            )),
+          );
+        }),
+      ),
+      GridView.count(
+        // Create a grid with 2 columns. If you change the scrollDirection to
+        // horizontal, this produces 2 rows.
+        crossAxisCount: 2,
+        // Generate 100 widgets that display their index in the List.
+        children: List.generate(1, (index) {
+          return Center(
+            child: Text(
+              'Item $index',
+            ),
+          );
+        }),
+      ),
+    ];
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        centerTitle: true,
+        toolbarHeight: 75,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: const Text(
+          'MyBeReal.',
+          style: TextStyle(
+            fontSize: 25,
+            fontFamily: 'Roboto',
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
       body: Stack(
         children: [
           AnimateGradient(
@@ -30,12 +101,37 @@ class HomeScreen extends StatelessWidget {
               width: 150,
             ),
           ),
+          BlocConsumer<UserBloc, UserState>(
+              listener: (BuildContext context, UserState state) {
+            if (state is UserError) {
+              showCustomSnackbar(
+                state.errorType,
+                state.errorMessage ?? '',
+                SnackPosition.TOP,
+                Colors.redAccent,
+                const Icon(Icons.error, color: Colors.white),
+              );
+            }
+          }, builder: (BuildContext context, UserState state) {
+            if (state is UserLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is UserLoaded) {
+              user = state.user;
+              return widgetOptions.elementAt(_selectedIndex);
+            } else {
+              return const Center(
+                child: Text('Error al cargar el usuario.'),
+              );
+            }
+          }),
         ],
       ),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: ExpandableFab(
         openButtonBuilder: RotateFloatingActionButtonBuilder(
-          shape: CircleBorder(),
+          shape: const CircleBorder(),
           child: const Icon(
             Icons.add,
             size: 30,
@@ -45,7 +141,7 @@ class HomeScreen extends StatelessWidget {
           backgroundColor: Colors.black,
         ),
         closeButtonBuilder: RotateFloatingActionButtonBuilder(
-          shape: CircleBorder(),
+          shape: const CircleBorder(),
           child: const Icon(
             Icons.close,
             size: 25,
@@ -61,50 +157,43 @@ class HomeScreen extends StatelessWidget {
         ),
         children: [
           FloatingActionButton(
-            shape: CircleBorder(),
+            shape: const CircleBorder(),
             backgroundColor: Colors.black,
             heroTag: null,
             child: const Icon(
               Icons.add_photo_alternate_outlined,
               color: Colors.white,
             ),
-            onPressed: () {
-              const SnackBar snackBar = SnackBar(
-                content: Text("SnackBar"),
-              );
-              scaffoldKey.currentState?.showSnackBar(snackBar);
-            },
+            onPressed: () {},
           ),
           FloatingActionButton(
+            shape: const CircleBorder(),
             backgroundColor: Colors.black,
-            shape: CircleBorder(),
             heroTag: null,
             child: const Icon(
               Icons.add_a_photo_outlined,
               color: Colors.white,
             ),
-            onPressed: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: ((context) => const NextPage())));
-            },
+            onPressed: () {},
           ),
         ],
       ),
-    );
-  }
-}
-
-class NextPage extends StatelessWidget {
-  const NextPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('next'),
-      ),
-      body: const Center(
-        child: Text('next'),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.black,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Enviados por mí',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Enviados por mi pareja',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        unselectedItemColor: Colors.white70,
+        selectedItemColor: Colors.white,
+        onTap: _onItemTapped,
       ),
     );
   }
