@@ -1,6 +1,6 @@
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:my_be_real/screens/home_screen.dart';
-import 'package:my_be_real/screens/login_screen.dart';
+import 'package:my_be_real/screens/login/login_screen.dart';
 import 'package:my_be_real/screens/splash_screen.dart';
 
 class RoutesClass {

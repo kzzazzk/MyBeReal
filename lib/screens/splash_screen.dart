@@ -1,7 +1,7 @@
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:my_be_real/screens/login_screen.dart';
+import 'package:my_be_real/screens/login/login_screen.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -40,10 +40,9 @@ class SplashScreen extends StatelessWidget {
                 Text(
                   'MyBeReal.',
                   style: TextStyle(
-                    fontSize: 48.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white
-                  ),
+                      fontSize: 48.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
                 SizedBox(height: 16.0),
                 CircularProgressIndicator(

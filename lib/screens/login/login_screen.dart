@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:my_be_real/bloc/auth_bloc.dart';
-import 'package:my_be_real/screens/email_confirmation_screen.dart';
+import 'package:my_be_real/screens/login/email_confirmation_screen.dart';
 import 'package:my_be_real/widgets/custom_textfield_widget.dart';
 import 'package:typewritertext/typewritertext.dart';
 
-import '../widgets/custom_snackbar.dart';
+import '../../widgets/custom_snackbar.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});

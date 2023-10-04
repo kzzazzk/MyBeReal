@@ -2,10 +2,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:my_be_real/bloc/auth_bloc.dart';
-import 'package:my_be_real/firebase_options.dart';
+import 'package:my_be_real/firebase/firebase_options.dart';
 import 'package:my_be_real/repositories/auth_repository.dart';
-import 'package:my_be_real/routes/routes.dart';
+import 'package:my_be_real/utils/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,8 +29,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'MyBeReal.',
           theme: ThemeData(
-            useMaterial3: true,
-          ),
+              useMaterial3: true, fontFamily: GoogleFonts.lato().fontFamily),
           initialRoute: '/splash',
           getPages: RoutesClass.routes,
         ),
