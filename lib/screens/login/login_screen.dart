@@ -33,6 +33,7 @@ class LoginScreen extends StatelessWidget {
         title: const Text(
           'MyBeReal.',
           style: TextStyle(
+            fontWeight: FontWeight.bold,
             fontSize: 25,
             fontFamily: 'Roboto',
             color: Colors.white,

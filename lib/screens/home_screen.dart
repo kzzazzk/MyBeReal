@@ -1,4 +1,5 @@
 import 'package:animate_gradient/animate_gradient.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -24,9 +25,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  bool hideLabels1 = true;
+  bool hideLabels2 = false;
+  Color selectedColor = Colors.white;
+  double padding1 = 0;
+  double padding2 = 20;
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      hideLabels1 = index == 0 ? !hideLabels1 : false;
+      hideLabels2 = index == 1 ? !hideLabels2 : false;
+      padding1 = index == 0 ? 0 : 20;
+      padding2 = index == 1 ? 0 : 20;
     });
   }
 
@@ -34,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final UserBloc userBloc = BlocProvider.of<UserBloc>(context);
     return Scaffold(
+      extendBody: true,
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -44,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text(
           'MyBeReal.',
           style: TextStyle(
+            fontWeight: FontWeight.bold,
             fontSize: 25,
             fontFamily: 'Roboto',
             color: Colors.white,
@@ -172,22 +184,60 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Enviados por mí',
+      bottomNavigationBar: CurvedNavigationBar(
+        color: Colors.black,
+        backgroundColor: Color(0x00000000),
+        buttonBackgroundColor: Colors.black,
+        items: <Widget>[
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(top: padding1),
+                child: Icon(
+                  Icons.person,
+                  size: 30,
+                  color: selectedColor,
+                ),
+              ),
+              Visibility(
+                visible: !hideLabels1,
+                child: Text(
+                  'Enviados por mí',
+                  style: TextStyle(
+                    color: selectedColor,
+                  ),
+                ),
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Enviados por mi pareja',
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(top: padding2),
+                child: Icon(
+                  Icons.people,
+                  size: 30,
+                  color: selectedColor,
+                ),
+              ),
+              Visibility(
+                visible: !hideLabels2,
+                child: Text(
+                  'Enviados por mi pareja',
+                  style: TextStyle(
+                    color: selectedColor,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
-        currentIndex: _selectedIndex,
-        unselectedItemColor: Colors.white70,
-        selectedItemColor: Colors.white,
+        index: _selectedIndex,
         onTap: _onItemTapped,
+        animationDuration: Duration(milliseconds: 200),
+        animationCurve: Curves.easeInOut,
       ),
     );
   }
