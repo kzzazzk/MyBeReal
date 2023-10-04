@@ -117,9 +117,9 @@ class LoginScreen extends StatelessWidget {
                       obscureText: true,
                     ),
                     Padding(
-                      padding: EdgeInsets.only(
+                      padding: const EdgeInsets.only(
                         top: 10,
-                        left: screenWidth * 0.43,
+                        left: 135,
                         bottom: 20,
                       ),
                       child: RichText(

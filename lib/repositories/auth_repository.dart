@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthRepository {
-  final FirebaseAuth _firebaseAuthauth = FirebaseAuth.instance;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   Future<void> signUp({required String email, required String password}) async {
     try {
-      await _firebaseAuthauth.createUserWithEmailAndPassword(
+      await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -21,7 +21,7 @@ class AuthRepository {
   Future<UserCredential?> signIn(
       {required String email, required String password}) async {
     try {
-      UserCredential user = await _firebaseAuthauth.signInWithEmailAndPassword(
+      UserCredential user = await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
       return user;
     } on FirebaseAuthException catch (e) {
@@ -37,6 +37,6 @@ class AuthRepository {
   }
 
   Future<void> signOut() async {
-    await _firebaseAuthauth.signOut();
+    await _firebaseAuth.signOut();
   }
 }
