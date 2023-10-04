@@ -2,13 +2,13 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:my_be_real/repositories/auth_repository.dart';
+import 'package:my_be_real/utils/constants.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository authRepository;
-
   AuthBloc({required this.authRepository}) : super(Unauthenticated()) {
     on<SignInRequested>((event, emit) async {
       emit(Loading());
@@ -18,6 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             email: event.email, password: event.password);
         if (user != null) {
           emit(Authenticated());
+          Constants.userEmail = user.user!.email!;
         } else {
           emit(AuthError("Credenciales incorrectos.",
               errorMessage:
