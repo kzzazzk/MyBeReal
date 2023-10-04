@@ -9,6 +9,7 @@ import 'package:my_be_real/repositories/auth_repository.dart';
 import 'package:my_be_real/utils/routes.dart';
 
 void main() async {
+  //await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());

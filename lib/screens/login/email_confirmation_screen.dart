@@ -9,6 +9,7 @@ class EmailConfimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true,
@@ -61,6 +62,7 @@ class EmailConfimation extends StatelessWidget {
                       hintText: 'Correo electrónico',
                       obscureText: false,
                       controller: usernameController,
+                      padding: screenWidth * 0.05,
                     ),
                     const SizedBox(
                       height: 15,

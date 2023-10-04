@@ -100,6 +100,7 @@ class LoginScreen extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 30,
+                          height: 1.1,
                         ),
                       ),
                       duration: Duration(milliseconds: 50),
@@ -109,18 +110,20 @@ class LoginScreen extends StatelessWidget {
                       controller: usernameController,
                       hintText: 'Correo electrónico',
                       obscureText: false,
+                      padding: screenWidth * 0.05,
                     ),
                     const SizedBox(height: 10),
                     CustomTextField(
                       controller: passwordController,
                       hintText: 'Contraseña',
                       obscureText: true,
+                      padding: screenWidth * 0.05,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(
-                        top: 10,
-                        left: 135,
-                        bottom: 20,
+                        top: 12,
+                        left: 205,
+                        bottom: 12,
                       ),
                       child: RichText(
                         text: TextSpan(
@@ -137,7 +140,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(
-                      width: screenWidth * 0.9,
+                      width: screenWidth * 0.90,
                       height: screenHeight * 0.07,
                       child: ElevatedButton(
                         onPressed: () {
@@ -147,10 +150,10 @@ class LoginScreen extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.indigo,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(5),
                           ),
                         ),
-                        child: const Text('Iniciar Sesión',
+                        child: const Text('Iniciar sesión',
                             style:
                                 TextStyle(fontSize: 17, color: Colors.white)),
                       ),
