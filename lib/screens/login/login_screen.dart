@@ -123,7 +123,7 @@ class LoginScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(
                         top: 12,
-                        left: 205,
+                        left: 180,
                         bottom: 12,
                       ),
                       child: RichText(

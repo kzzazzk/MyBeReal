@@ -32,6 +32,8 @@ dependencies:
   connectivity: ^3.0.6
   sliding_clipped_nav_bar: ^3.1.0+4
   curved_navigation_bar: ^1.0.3
+  image_grid_view: ^0.0.2
+  blurrycontainer: ^1.0.2
 
 dev_dependencies:
   flutter_test:
@@ -40,6 +42,7 @@ dev_dependencies:
   flutter_lints: ^2.0.0
 
 flutter:
+
   uses-material-design: true
   assets:
     - .env

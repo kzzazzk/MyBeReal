@@ -21,6 +21,7 @@ class CustomTextField extends StatelessWidget {
         right: padding, // 5%
       ),
       child: TextField(
+        cursorColor: Colors.white,
         style: const TextStyle(color: Colors.white),
         controller: controller,
         obscureText: obscureText,

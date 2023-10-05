@@ -10,10 +10,14 @@ class EmailConfimation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        iconTheme: const IconThemeData(
+          color: Colors.white, //change your color here
+        ),
         centerTitle: true,
         toolbarHeight: 75,
         elevation: 0,
@@ -68,18 +72,20 @@ class EmailConfimation extends StatelessWidget {
                       height: 15,
                     ),
                     SizedBox(
-                      height: 60,
-                      width: 393,
+                      width: screenWidth * 0.90,
+                      height: screenHeight * 0.07,
                       child: ElevatedButton(
                         onPressed: () {
                           FirebaseAuth.instance.sendPasswordResetEmail(
-                            email: usernameController.text,
-                          );
+                              email: usernameController.text);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.indigo,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
                         ),
-                        child: const Text('Enviar',
+                        child: const Text('Iniciar sesión',
                             style:
                                 TextStyle(fontSize: 17, color: Colors.white)),
                       ),

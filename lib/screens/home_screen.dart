@@ -9,6 +9,7 @@ import 'package:my_be_real/utils/constants.dart';
 import 'package:my_be_real/widgets/custom_snackbar.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:animate_gradient/animate_gradient.dart';
+import 'package:blurrycontainer/blurrycontainer.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -70,7 +71,9 @@ class _HomeScreenState extends State<HomeScreen> {
           if (state is UserInitial || state is UserLoading) {
             userBloc.add(GetUserRequested(Constants.userEmail));
             return const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: Colors.white,
+              ),
             );
           } else if (state is UserLoaded) {
             final userFotos = _selectedIndex == 0
@@ -78,15 +81,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 : state.user2.listaFotos;
             return _selectedIndex == index
                 ? GridView.count(
-                    crossAxisCount: 2,
+                    crossAxisSpacing: 0,
+                    mainAxisSpacing: 0,
+                    crossAxisCount: 4,
                     children: List.generate(
                       userFotos.length,
                       (index) {
                         return Padding(
-                          padding: const EdgeInsets.all(10.0),
+                          padding: const EdgeInsets.all(5.0),
                           child: Center(
-                            child: Image.network(
-                              userFotos[index].id,
+                            child: BlurryContainer(
+                              blur: 5,
+                              width: 200,
+                              height: 200,
+                              elevation: 0,
+                              color: Colors.black54,
+                              padding: const EdgeInsets.all(8),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(20)),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image.network(
+                                  fit: BoxFit.cover,
+                                  userFotos[index].id,
+                                ),
+                              ),
                             ),
                           ),
                         );
