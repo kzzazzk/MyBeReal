@@ -59,6 +59,8 @@ void uploadFileFromGallery(
       logoUrl.value = await referenceImageToUpload.getDownloadURL();
     }
   } on FirebaseException catch (e) {
-    print(e);
+    if (kDebugMode) {
+      print(e);
+    }
   }
 }
