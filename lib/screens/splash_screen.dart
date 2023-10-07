@@ -31,10 +31,6 @@ class SplashScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      /*Image(
-                  image: AssetImage('assets/logo.jpeg'),
-                  height: 128.0,
-                  width: 128.0),*/
                       Text(
                         'MyBeReal.',
                         style: TextStyle(
