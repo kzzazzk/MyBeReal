@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:my_be_real/utils/constants.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
@@ -259,22 +263,85 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {},
             ),
             FloatingActionButton(
-              shape: const CircleBorder(),
-              backgroundColor: Colors.black,
-              heroTag: null,
-              child: const Icon(
-                Icons.add_a_photo_outlined,
-                color: Colors.white,
-              ),
-              onPressed: () async {
-                final picker = ImagePicker();
-                final pickedFile =
-                    await picker.pickImage(source: ImageSource.camera);
+                shape: const CircleBorder(),
+                backgroundColor: Colors.black,
+                heroTag: null,
+                child: const Icon(
+                  Icons.add_a_photo_outlined,
+                  color: Colors.white,
+                ),
+                onPressed: () async {
+                  final picker = ImagePicker();
+                  XFile? image =
+                      await picker.pickImage(source: ImageSource.camera);
+                  // open a dialog to confirm the upload
+                  if (mounted && image != null) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Confirmar'),
+                          content: Column(
+                            children: [
+                              const Text(
+                                  '¿Estás seguro de que quieres subir esta foto?'),
+                              Image.file(
+                                File(image.path),
+                                height: 200,
+                                width: 200,
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Cancelar'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                final storage = FirebaseStorage.instance;
 
-                if (pickedFile != null) {
-                } else {}
-              },
-            ),
+                                final ref = storage.ref().child(
+                                    DateFormat('MMMM').format(DateTime.now()));
+
+                                final task =
+                                    await ref.putFile(File(image.path));
+
+                                if (task.state == TaskState.success) {
+                                  final downloadUrl =
+                                      await ref.getDownloadURL();
+
+                                  // Guardar la URL de la imagen en Firestore
+                                  FirebaseFirestore.instance
+                                      .collection('fotos')
+                                      .add({
+                                    'url': downloadUrl,
+                                    'timestamp': FieldValue.serverTimestamp(),
+                                    'user_id': Constants.authUserEmail,
+                                  });
+
+                                  if (mounted) {
+                                    Navigator.of(context).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content:
+                                            Text('Imagen subida con éxito.'),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              child: const Text('Aceptar'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                  // upload the image to Firebase Storage
+                }),
           ],
         ),
       ),
