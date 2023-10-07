@@ -60,12 +60,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ? FirebaseFirestore.instance
               .collection('fotos')
               .where('user_id', isEqualTo: Constants.authUserEmail)
-              .orderBy('timestamp', descending: true)
+              .orderBy('timestamp', descending: false)
               .snapshots()
           : FirebaseFirestore.instance
               .collection('fotos')
               .where('user_id', isEqualTo: Constants.otherUserEmail)
-              .orderBy('timestamp', descending: true)
+              .orderBy('timestamp', descending: false)
               .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -95,7 +95,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Create a sorted list of month keys
         List<String> sortedMonthKeys = photosByMonth.keys.toList();
-        sortedMonthKeys.sort();
+        sortedMonthKeys.sort(
+          (a, b) => b.compareTo(a),
+        );
 
         return Padding(
             padding: const EdgeInsets.only(top: 5),
@@ -113,14 +115,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: BlurryContainer(
                     blur: 2,
                     elevation: 0,
-                    color: Colors.black38,
+                    color: Colors.black45,
                     borderRadius: const BorderRadius.all(Radius.circular(20)),
                     child: Column(
                       children: [
                         ListTile(
                           title: Text(
                             DateFormat('MMMM yyyy').format(displayDate),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 25),
                           ),
                         ),
                         GridView.builder(
@@ -140,17 +145,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding: const EdgeInsets.all(5.0),
                               child: Center(
                                 child: GestureDetector(
-                                  child: BlurryContainer(
-                                    blur: 2,
+                                  child: Container(
                                     width: 200,
                                     height: 200,
-                                    elevation: 0,
-                                    color: Colors.black12,
-                                    padding: const EdgeInsets.all(8),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(20)),
                                     child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
+                                      borderRadius: BorderRadius.circular(5),
                                       child: Image.network(
                                         monthPhotos?[index].get('url'),
                                         fit: BoxFit.cover,
