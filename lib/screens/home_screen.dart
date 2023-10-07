@@ -81,11 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(5.0),
                 child: Center(
                   child: BlurryContainer(
-                    blur: 5,
+                    blur: 2,
                     width: 200,
                     height: 200,
                     elevation: 0,
-                    color: Colors.black54,
+                    color: Colors.black12,
                     padding: const EdgeInsets.all(8),
                     borderRadius: const BorderRadius.all(Radius.circular(20)),
                     child: ClipRRect(
