@@ -108,57 +108,64 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 DateTime displayDate = DateTime.parse('$monthKey-01');
 
-                return Column(
-                  children: [
-                    ListTile(
-                      title: Text(
-                        DateFormat('MMMM yyyy').format(displayDate),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount:
-                            4, // Adjust the number of columns as needed
-                      ),
-                      itemCount: monthPhotos?.length,
-                      itemBuilder: (context, index) {
-                        // Build your photo grid items here
-                        // You can access individual photos with monthPhotos[index]
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: BlurryContainer(
+                    blur: 2,
+                    elevation: 0,
+                    color: Colors.black38,
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text(
+                            DateFormat('MMMM yyyy').format(displayDate),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount:
+                                4, // Adjust the number of columns as needed
+                          ),
+                          itemCount: monthPhotos?.length,
+                          itemBuilder: (context, index) {
+                            // Build your photo grid items here
+                            // You can access individual photos with monthPhotos[index]
 
-                        return Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Center(
-                            child: GestureDetector(
-                              child: BlurryContainer(
-                                blur: 2,
-                                width: 200,
-                                height: 200,
-                                elevation: 0,
-                                color: Colors.black12,
-                                padding: const EdgeInsets.all(8),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(20)),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Image.network(
-                                    monthPhotos?[index].get('url'),
-                                    fit: BoxFit.cover,
+                            return Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: Center(
+                                child: GestureDetector(
+                                  child: BlurryContainer(
+                                    blur: 2,
+                                    width: 200,
+                                    height: 200,
+                                    elevation: 0,
+                                    color: Colors.black12,
+                                    padding: const EdgeInsets.all(8),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(20)),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: Image.network(
+                                        monthPhotos?[index].get('url'),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
                                   ),
+                                  onTap: () {},
                                 ),
                               ),
-                              onTap: () {
-                                //showPopupMenu(context);
-                              },
-                            ),
-                          ),
-                        );
-                      },
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 );
               },
             ));
