@@ -16,16 +16,16 @@ class EmailConfimation extends StatelessWidget {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         iconTheme: const IconThemeData(
-          color: Colors.white, //change your color here
+          color: Colors.white, //// change your color here
         ),
         centerTitle: true,
-        toolbarHeight: 75,
+        toolbarHeight: 100,
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: const Text(
           'MyBeReal.',
           style: TextStyle(
-            fontSize: 25,
+            fontSize: 30,
             fontFamily: 'Roboto',
             color: Colors.white,
           ),
@@ -80,7 +80,7 @@ class EmailConfimation extends StatelessWidget {
                               email: usernameController.text);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.indigo,
+                          backgroundColor: Colors.black,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
                           ),

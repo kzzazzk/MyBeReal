@@ -1,12 +1,18 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/get_navigation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:my_be_real/utils/constants.dart';
@@ -29,6 +35,42 @@ class _HomeScreenState extends State<HomeScreen> {
   double padding1 = 0;
   double padding2 = 20;
   bool isLoading = true;
+
+  void showPopupMenu(BuildContext context) {
+    final RenderBox overlay =
+        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+
+    showMenu(
+      context: context,
+      position: RelativeRect.fromRect(
+        Rect.fromPoints(
+          overlay.localToGlobal(Offset.zero, ancestor: overlay),
+          overlay.localToGlobal(overlay.size.bottomRight(Offset.zero),
+              ancestor: overlay),
+        ),
+        Offset.zero & overlay.size,
+      ),
+      items: <PopupMenuItem<String>>[
+        const PopupMenuItem<String>(
+          value: 'item1',
+          child: Text('Item 1'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'item2',
+          child: Text('Item 2'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'item3',
+          child: Text('Item 3'),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        // Handle the selected menu item
+        print('Selected: $value');
+      }
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -75,35 +117,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
         final fotos = snapshot.data?.docs;
 
-        return GridView.count(
-          crossAxisSpacing: 0,
-          mainAxisSpacing: 0,
-          crossAxisCount: 4,
-          children: List.generate(
-            fotos!.length,
-            (index) {
-              return Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Center(
-                  child: BlurryContainer(
-                    blur: 2,
-                    width: 200,
-                    height: 200,
-                    elevation: 0,
-                    color: Colors.black12,
-                    padding: const EdgeInsets.all(8),
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(
-                        fotos[index].get('url'),
-                        fit: BoxFit.cover,
+        return Padding(
+          padding: const EdgeInsets.only(top: 5),
+          child: GridView.count(
+            crossAxisSpacing: 0,
+            mainAxisSpacing: 0,
+            crossAxisCount: 4,
+            children: List.generate(
+              fotos!.length,
+              (index) {
+                return Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Center(
+                    child: GestureDetector(
+                      child: BlurryContainer(
+                        blur: 2,
+                        width: 200,
+                        height: 200,
+                        elevation: 0,
+                        color: Colors.black12,
+                        padding: const EdgeInsets.all(8),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.network(
+                            fotos[index].get('url'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
+                      onTap: () {
+                        showPopupMenu(context);
+                      },
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         );
       },
@@ -118,19 +169,43 @@ class _HomeScreenState extends State<HomeScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         centerTitle: true,
-        toolbarHeight: 75,
+        toolbarHeight: 100,
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: const Text(
           'MyBeReal.',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 25,
+            fontSize: 30,
             fontFamily: 'Roboto',
             color: Colors.white,
           ),
           textAlign: TextAlign.center,
         ),
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(right: 17, bottom: 5),
+            child: Container(
+              width: 45, // Adjust the width to make the circle smaller
+              height: 45,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black, // Set the background color here
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.logout,
+                  color: Colors.white,
+                ), // You can use any icon you prefer
+                onPressed: () {
+                  FirebaseAuth.instance.signOut();
+
+                  Get.offNamed('/login');
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -253,15 +328,120 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           children: [
             FloatingActionButton(
-              shape: const CircleBorder(),
-              backgroundColor: Colors.black,
-              heroTag: null,
-              child: const Icon(
-                Icons.add_photo_alternate_outlined,
-                color: Colors.white,
-              ),
-              onPressed: () {},
-            ),
+                shape: const CircleBorder(),
+                backgroundColor: Colors.black,
+                heroTag: null,
+                child: const Icon(
+                  Icons.add_photo_alternate_outlined,
+                  color: Colors.white,
+                ),
+                onPressed: () async {
+                  final picker = ImagePicker();
+                  XFile? image =
+                      await picker.pickImage(source: ImageSource.gallery);
+                  final data = await image?.readAsBytes();
+                  final codec = await ui.instantiateImageCodec(data!);
+                  final info = await codec.getNextFrame();
+
+                  // Get the image width and height
+                  final imageWidth = info.image.width.toDouble();
+                  final imageHeight = info.image.height.toDouble();
+
+                  if (mounted && image != null) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          surfaceTintColor: Colors.transparent,
+                          backgroundColor: Colors.black87,
+                          title: const Text(
+                            'Confirmar envío',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize
+                                .min, // Make the column size as small as possible
+                            children: [
+                              const Text(
+                                '¿Estás seguro de que quieres subir esta foto?',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              Container(
+                                width: imageWidth,
+                                height: imageHeight,
+                                child: FittedBox(
+                                  fit: BoxFit
+                                      .contain, // Adjust the fit as needed
+                                  child: Image.file(
+                                    File(image.path),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text(
+                                'Cancelar',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                String uniqueFileName = DateTime.now()
+                                    .millisecondsSinceEpoch
+                                    .toString();
+                                var now = DateTime.now();
+                                var formatter = DateFormat('MMMM');
+                                var monthName = formatter.format(now);
+                                final storage = FirebaseStorage.instance;
+                                final ref = storage
+                                    .ref()
+                                    .child('$monthName/$uniqueFileName');
+                                final task =
+                                    await ref.putFile(File(image.path));
+
+                                if (task.state == TaskState.success) {
+                                  final downloadUrl =
+                                      await ref.getDownloadURL();
+
+                                  // Guardar la URL de la imagen en Firestore
+                                  FirebaseFirestore.instance
+                                      .collection('fotos')
+                                      .add({
+                                    'url': downloadUrl,
+                                    'timestamp': FieldValue.serverTimestamp(),
+                                    'user_id': Constants.authUserEmail,
+                                  });
+
+                                  if (mounted) {
+                                    Navigator.of(context).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Imagen subida con éxito.',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              child: const Text(
+                                'Aceptar',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                  // upload the image to Firebase Storage
+                }),
             FloatingActionButton(
                 shape: const CircleBorder(),
                 backgroundColor: Colors.black,
@@ -274,6 +454,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   final picker = ImagePicker();
                   XFile? image =
                       await picker.pickImage(source: ImageSource.camera);
+                  final data = await image?.readAsBytes();
+                  final codec = await ui.instantiateImageCodec(data!);
+                  final info = await codec.getNextFrame();
+                  final imageWidth = info.image.width.toDouble();
+                  final imageHeight = info.image.height.toDouble();
                   // open a dialog to confirm the upload
                   if (mounted && image != null) {
                     showDialog(
@@ -287,8 +472,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   '¿Estás seguro de que quieres subir esta foto?'),
                               Image.file(
                                 File(image.path),
-                                height: 200,
-                                width: 200,
+                                height: imageHeight,
+                                width: imageWidth,
                               ),
                             ],
                           ),

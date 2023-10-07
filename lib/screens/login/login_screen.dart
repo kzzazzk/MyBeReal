@@ -28,14 +28,14 @@ class LoginScreen extends StatelessWidget {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         centerTitle: true,
-        toolbarHeight: 75,
+        toolbarHeight: 100,
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: const Text(
           'MyBeReal.',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 25,
+            fontSize: 30,
             fontFamily: 'Roboto',
             color: Colors.white,
           ),
@@ -82,7 +82,7 @@ class LoginScreen extends StatelessWidget {
               } else {
                 return Column(
                   children: [
-                    const SizedBox(height: 150),
+                    const SizedBox(height: 170),
                     const TypeWriterText(
                       text: Text(
                         'Bienvenido/a de nuevo. \nTe echábamos de menos.',
@@ -90,7 +90,7 @@ class LoginScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 30,
+                          fontSize: 35,
                           height: 1.1,
                         ),
                       ),
@@ -139,7 +139,7 @@ class LoginScreen extends StatelessWidget {
                               passwordController.text));
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.indigo,
+                          backgroundColor: Colors.black,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
                           ),
