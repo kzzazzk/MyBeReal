@@ -10,9 +10,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/get_navigation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:my_be_real/utils/constants.dart';
@@ -35,42 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
   double padding1 = 0;
   double padding2 = 20;
   bool isLoading = true;
-
-  void showPopupMenu(BuildContext context) {
-    final RenderBox overlay =
-        Overlay.of(context)!.context.findRenderObject() as RenderBox;
-
-    showMenu(
-      context: context,
-      position: RelativeRect.fromRect(
-        Rect.fromPoints(
-          overlay.localToGlobal(Offset.zero, ancestor: overlay),
-          overlay.localToGlobal(overlay.size.bottomRight(Offset.zero),
-              ancestor: overlay),
-        ),
-        Offset.zero & overlay.size,
-      ),
-      items: <PopupMenuItem<String>>[
-        const PopupMenuItem<String>(
-          value: 'item1',
-          child: Text('Item 1'),
-        ),
-        const PopupMenuItem<String>(
-          value: 'item2',
-          child: Text('Item 2'),
-        ),
-        const PopupMenuItem<String>(
-          value: 'item3',
-          child: Text('Item 3'),
-        ),
-      ],
-    ).then((value) {
-      if (value != null) {
-        // Handle the selected menu item
-        print('Selected: $value');
-      }
-    });
-  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -117,46 +78,91 @@ class _HomeScreenState extends State<HomeScreen> {
 
         final fotos = snapshot.data?.docs;
 
+        // Create a Map to organize photos by month
+        Map<String, List<QueryDocumentSnapshot>> photosByMonth = {};
+
+        // Iterate through the photos and group them by month
+        for (var foto in fotos!) {
+          DateTime timestamp = foto['timestamp'].toDate();
+          String monthKey = '${timestamp.year}-${timestamp.month}';
+
+          if (!photosByMonth.containsKey(monthKey)) {
+            photosByMonth[monthKey] = [];
+          }
+
+          photosByMonth[monthKey]!.add(foto);
+        }
+
+        // Create a sorted list of month keys
+        List<String> sortedMonthKeys = photosByMonth.keys.toList();
+        sortedMonthKeys.sort();
+
         return Padding(
-          padding: const EdgeInsets.only(top: 5),
-          child: GridView.count(
-            crossAxisSpacing: 0,
-            mainAxisSpacing: 0,
-            crossAxisCount: 4,
-            children: List.generate(
-              fotos!.length,
-              (index) {
-                return Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Center(
-                    child: GestureDetector(
-                      child: BlurryContainer(
-                        blur: 2,
-                        width: 200,
-                        height: 200,
-                        elevation: 0,
-                        color: Colors.black12,
-                        padding: const EdgeInsets.all(8),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(20)),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image.network(
-                            fotos[index].get('url'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+            padding: const EdgeInsets.only(top: 5),
+            child: ListView.builder(
+              itemCount: sortedMonthKeys.length,
+              itemBuilder: (context, index) {
+                String monthKey = sortedMonthKeys[index];
+                List<QueryDocumentSnapshot<Object?>>? monthPhotos =
+                    photosByMonth[monthKey];
+
+                DateTime displayDate = DateTime.parse('$monthKey-01');
+
+                return Column(
+                  children: [
+                    ListTile(
+                      title: Text(
+                        DateFormat('MMMM yyyy').format(displayDate),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      onTap: () {
-                        showPopupMenu(context);
+                    ),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:
+                            4, // Adjust the number of columns as needed
+                      ),
+                      itemCount: monthPhotos?.length,
+                      itemBuilder: (context, index) {
+                        // Build your photo grid items here
+                        // You can access individual photos with monthPhotos[index]
+                        print(monthKey);
+                        print(monthPhotos![index].id);
+                        return Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Center(
+                            child: GestureDetector(
+                              child: BlurryContainer(
+                                blur: 2,
+                                width: 200,
+                                height: 200,
+                                elevation: 0,
+                                color: Colors.black12,
+                                padding: const EdgeInsets.all(8),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(20)),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: Image.network(
+                                    fotos[index].get('url'),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              onTap: () {
+                                //showPopupMenu(context);
+                              },
+                            ),
+                          ),
+                        );
                       },
                     ),
-                  ),
+                  ],
                 );
               },
-            ),
-          ),
-        );
+            ));
       },
     );
   }
@@ -366,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 '¿Estás seguro de que quieres subir esta foto?',
                                 style: TextStyle(color: Colors.white),
                               ),
-                              Container(
+                              SizedBox(
                                 width: imageWidth,
                                 height: imageHeight,
                                 child: FittedBox(
@@ -459,7 +465,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   final info = await codec.getNextFrame();
                   final imageWidth = info.image.width.toDouble();
                   final imageHeight = info.image.height.toDouble();
-                  // open a dialog to confirm the upload
                   if (mounted && image != null) {
                     showDialog(
                       context: context,
