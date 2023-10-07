@@ -304,13 +304,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 String uniqueFileName = DateTime.now()
                                     .millisecondsSinceEpoch
                                     .toString();
+                                var now = DateTime.now();
+                                var formatter = DateFormat('MMMM');
+                                var monthName = formatter.format(now);
                                 final storage = FirebaseStorage.instance;
-                                final ref = storage.ref().child(
-                                    DateFormat('MMMM').format(DateTime.now()));
-                                Reference referenceImageToUpload =
-                                    ref.child(uniqueFileName);
-                                final task = await referenceImageToUpload
-                                    .putFile(File(image.path));
+                                final ref = storage
+                                    .ref()
+                                    .child('$monthName/$uniqueFileName');
+                                final task =
+                                    await ref.putFile(File(image.path));
 
                                 if (task.state == TaskState.success) {
                                   final downloadUrl =
