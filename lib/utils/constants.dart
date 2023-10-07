@@ -1,3 +1,4 @@
 class Constants {
-  static String userEmail = '';
+  static String authUserEmail = '';
+  static String otherUserEmail = '';
 }

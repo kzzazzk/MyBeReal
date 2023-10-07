@@ -5,10 +5,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_be_real/bloc/auth/auth_bloc.dart';
-import 'package:my_be_real/bloc/user/user_bloc.dart';
 import 'package:my_be_real/firebase/firebase_options.dart';
 import 'package:my_be_real/repositories/auth_repository.dart';
-import 'package:my_be_real/repositories/user_repository.dart';
 import 'package:my_be_real/utils/routes.dart';
 
 void main() async {
@@ -23,28 +21,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider<AuthRepository>(
-          create: (context) => AuthRepository(),
+    return RepositoryProvider<AuthRepository>(
+      create: (context) => AuthRepository(),
+      child: BlocProvider<AuthBloc>(
+        create: (context) => AuthBloc(
+          authRepository: context.read<AuthRepository>(),
         ),
-        RepositoryProvider<UserRepository>(
-          create: (context) => UserRepository(),
-        ),
-      ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider<AuthBloc>(
-            create: (context) => AuthBloc(
-              authRepository: context.read<AuthRepository>(),
-            ),
-          ),
-          BlocProvider<UserBloc>(
-            create: (context) => UserBloc(
-              userRepository: context.read<UserRepository>(),
-            ),
-          ),
-        ],
         child: GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'MyBeReal.',

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:my_be_real/bloc/auth/auth_bloc.dart';
 import 'package:my_be_real/screens/login/email_confirmation_screen.dart';
+import 'package:my_be_real/widgets/custom_loading_indicator_widget.dart';
 import 'package:my_be_real/widgets/custom_textfield_widget.dart';
 import 'package:typewritertext/typewritertext.dart';
 
@@ -77,18 +78,7 @@ class LoginScreen extends StatelessWidget {
             },
             builder: (BuildContext context, AuthState state) {
               if (state is Loading) {
-                return Container(
-                  height: 100,
-                  width: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: const EdgeInsets.all(20),
-                  child: const CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
-                );
+                return const CustomLoadingIndicator();
               } else {
                 return Column(
                   children: [

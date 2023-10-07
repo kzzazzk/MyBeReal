@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:my_be_real/repositories/auth_repository.dart';
 import 'package:my_be_real/utils/constants.dart';
 
@@ -18,7 +19,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             email: event.email, password: event.password);
         if (user != null) {
           emit(Authenticated());
-          Constants.userEmail = user.user!.email!;
+          Constants.authUserEmail = user.user!.email!;
+          Constants.otherUserEmail =
+              Constants.authUserEmail == dotenv.env['ZAKA_ID']
+                  ? dotenv.env['ADRI_ID']!
+                  : dotenv.env['ZAKA_ID']!;
         } else {
           emit(AuthError("Credenciales incorrectos.",
               errorMessage:

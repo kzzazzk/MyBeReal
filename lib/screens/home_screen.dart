@@ -1,15 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:get/get_navigation/src/snackbar/snackbar.dart';
-import 'package:my_be_real/bloc/user/user_bloc.dart';
-import 'package:my_be_real/bloc/user/user_event.dart';
-import 'package:my_be_real/bloc/user/user_state.dart';
-import 'package:my_be_real/utils/constants.dart';
-import 'package:my_be_real/widgets/custom_snackbar.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:my_be_real/utils/constants.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -28,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Color selectedColor = Colors.white;
   double padding1 = 0;
   double padding2 = 20;
+  bool isLoading = true;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -38,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding2 = index == 1 ? 0 : 20;
       _pageViewController.animateToPage(
         index,
-        duration: Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
       );
     });
@@ -50,78 +46,67 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  Widget buildUserFotoGrid(int index) {
+    return StreamBuilder(
+      stream: index == 0
+          ? FirebaseFirestore.instance
+              .collection('fotos')
+              .where('user_id', isEqualTo: Constants.authUserEmail)
+              .orderBy('timestamp', descending: true)
+              .snapshots()
+          : FirebaseFirestore.instance
+              .collection('fotos')
+              .where('user_id', isEqualTo: Constants.otherUserEmail)
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.transparent,
+            ),
+          );
+        }
+
+        final fotos = snapshot.data?.docs;
+
+        return GridView.count(
+          crossAxisSpacing: 0,
+          mainAxisSpacing: 0,
+          crossAxisCount: 4,
+          children: List.generate(
+            fotos!.length,
+            (index) {
+              return Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Center(
+                  child: BlurryContainer(
+                    blur: 5,
+                    width: 200,
+                    height: 200,
+                    elevation: 0,
+                    color: Colors.black54,
+                    padding: const EdgeInsets.all(8),
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.network(
+                        fotos[index].get('url'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final UserBloc userBloc = BlocProvider.of<UserBloc>(context);
-
-    Widget buildPageContent(int index) {
-      return BlocConsumer<UserBloc, UserState>(
-        listener: (BuildContext context, UserState state) {
-          if (state is UserError) {
-            showCustomSnackbar(
-              state.errorType,
-              state.errorMessage ?? '',
-              SnackPosition.TOP,
-              Colors.redAccent,
-              const Icon(Icons.error, color: Colors.white),
-            );
-          }
-        },
-        builder: (BuildContext context, UserState state) {
-          if (state is UserInitial || state is UserLoading) {
-            userBloc.add(GetUserRequested(Constants.userEmail));
-            return const Center(
-              child: CircularProgressIndicator(
-                color: Colors.white,
-              ),
-            );
-          } else if (state is UserLoaded) {
-            final userFotos = _selectedIndex == 0
-                ? state.user.listaFotos
-                : state.user2.listaFotos;
-            return _selectedIndex == index
-                ? GridView.count(
-                    crossAxisSpacing: 0,
-                    mainAxisSpacing: 0,
-                    crossAxisCount: 4,
-                    children: List.generate(
-                      userFotos.length,
-                      (index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Center(
-                            child: BlurryContainer(
-                              blur: 5,
-                              width: 200,
-                              height: 200,
-                              elevation: 0,
-                              color: Colors.black54,
-                              padding: const EdgeInsets.all(8),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(20)),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Image.network(
-                                  fit: BoxFit.cover,
-                                  userFotos[index].id,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                : const SizedBox(); // Return an empty container if not selected
-          } else {
-            return const Center(
-              child: Text('Error al cargar el usuario.'),
-            );
-          }
-        },
-      );
-    }
-
     return Scaffold(
       extendBody: true,
       resizeToAvoidBottomInset: false,
@@ -163,11 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 controller: _pageViewController,
                 onPageChanged: _onItemTapped,
                 children: [
-                  buildPageContent(0),
-                  buildPageContent(1),
+                  buildUserFotoGrid(0),
+                  buildUserFotoGrid(1),
                 ],
               ),
-
               // CurvedNavigationBar
               Positioned(
                 bottom: 0,
@@ -225,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                   index: _selectedIndex,
                   onTap: _onItemTapped,
-                  animationDuration: Duration(milliseconds: 200),
+                  animationDuration: const Duration(milliseconds: 200),
                   animationCurve: Curves.easeInOut,
                 ),
               ),
