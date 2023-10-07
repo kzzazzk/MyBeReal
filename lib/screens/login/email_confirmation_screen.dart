@@ -85,7 +85,7 @@ class EmailConfimation extends StatelessWidget {
                             borderRadius: BorderRadius.circular(5),
                           ),
                         ),
-                        child: const Text('Iniciar sesión',
+                        child: const Text('Enviar',
                             style:
                                 TextStyle(fontSize: 17, color: Colors.white)),
                       ),
