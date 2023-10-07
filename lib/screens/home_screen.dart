@@ -128,8 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         // Build your photo grid items here
                         // You can access individual photos with monthPhotos[index]
-                        print(monthKey);
-                        print(monthPhotos![index].id);
+
                         return Padding(
                           padding: const EdgeInsets.all(5.0),
                           child: Center(
@@ -146,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8.0),
                                   child: Image.network(
-                                    monthPhotos[index].get('url'),
+                                    monthPhotos?[index].get('url'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
