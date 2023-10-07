@@ -301,13 +301,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             TextButton(
                               onPressed: () async {
+                                String uniqueFileName = DateTime.now()
+                                    .millisecondsSinceEpoch
+                                    .toString();
                                 final storage = FirebaseStorage.instance;
-
                                 final ref = storage.ref().child(
                                     DateFormat('MMMM').format(DateTime.now()));
-
-                                final task =
-                                    await ref.putFile(File(image.path));
+                                Reference referenceImageToUpload =
+                                    ref.child(uniqueFileName);
+                                final task = await referenceImageToUpload
+                                    .putFile(File(image.path));
 
                                 if (task.state == TaskState.success) {
                                   final downloadUrl =
