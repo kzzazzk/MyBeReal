@@ -146,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8.0),
                                   child: Image.network(
-                                    fotos[index].get('url'),
+                                    monthPhotos[index].get('url'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
