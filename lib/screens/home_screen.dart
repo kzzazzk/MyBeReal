@@ -174,7 +174,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                             //dialog action para download image
                                             CupertinoDialogAction(
                                               onPressed: () async {
-                                                // logica para descargar
                                                 Navigator.of(context).pop();
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
@@ -262,26 +261,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       actions: <Widget>[
                         Padding(
                           padding: const EdgeInsets.only(right: 20),
-                          child: Container(
-                            width:
-                                45, // Adjust the width to make the circle smaller
-                            height: 45,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color:
-                                  Colors.red, // Set the background color here
-                            ),
-                            child: IconButton(
-                              icon: const Icon(
-                                Icons.logout,
-                                color: Colors.white,
-                              ), // You can use any icon you prefer
-                              onPressed: () {
-                                FirebaseAuth.instance.signOut();
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.logout,
+                              color: Colors.white,
+                            ), // You can use any icon you prefer
+                            onPressed: () {
+                              FirebaseAuth.instance.signOut();
 
-                                Get.offNamed('/login');
-                              },
-                            ),
+                              Get.offNamed('/login');
+                            },
                           ),
                         ),
                       ],
