@@ -11,10 +11,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   animate_gradient: ^0.0.2+1
   cupertino_icons: ^1.0.2
   firebase_auth: ^4.10.0
+  firebase_core: ^2.16.0
   firebase_storage: ^11.2.7
   get: ^4.6.6
   google_fonts: ^6.1.0
@@ -25,30 +28,33 @@ dependencies:
   flutter_bloc: ^8.1.3
   flutter_expandable_fab: ^2.0.0
   firebase_database: ^10.2.6
-  flutter_dotenv: ^5.1.0
   image_picker: ^1.0.4
-  firebase_core: ^2.16.0
+  flutter_dotenv: ^5.1.0
+  cloud_firestore: ^4.9.3
+  connectivity: ^3.0.6
+  sliding_clipped_nav_bar: ^3.1.0+4
+  curved_navigation_bar: ^1.0.3
+  image_grid_view: ^0.0.2
+  blurrycontainer: ^1.0.2
+  intl: ^0.18.1
+  fluid_bottom_nav_bar: ^1.4.0
+  scroll_to_hide: ^2.0.1
+  image_gallery_saver: ^2.0.3
+  dio: ^5.3.3
+  google_nav_bar: ^5.0.6
+  molten_navigationbar_flutter: ^1.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-
-
-
-
-
   flutter_lints: ^2.0.0
-
-
-
-
 
 flutter:
 
-
-
   uses-material-design: true
+  assets:
+    - .env
 
 
 
