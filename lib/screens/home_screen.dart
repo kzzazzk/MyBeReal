@@ -260,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       actions: <Widget>[
                         Padding(
-                          padding: const EdgeInsets.only(right: 20),
+                          padding: const EdgeInsets.only(right: 5),
                           child: IconButton(
                             icon: const Icon(
                               Icons.logout,
@@ -268,7 +268,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ), // You can use any icon you prefer
                             onPressed: () {
                               FirebaseAuth.instance.signOut();
-
                               Get.offNamed('/login');
                             },
                           ),
@@ -374,8 +373,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(
                               height: 20,
                             ),
-                            Image.file(
-                              File(image.path),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: Image.file(
+                                File(image.path),
+                              ),
                             ),
                           ]),
                           actions: [
@@ -470,8 +472,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(
                               height: 20,
                             ),
-                            Image.file(
-                              File(image.path),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: Image.file(
+                                File(image.path),
+                              ),
                             ),
                           ]),
                           actions: [
@@ -486,9 +491,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             CupertinoDialogAction(
                               onPressed: () async {
-                                String uniqueFileName = DateTime.now()
-                                    .millisecondsSinceEpoch
-                                    .toString();
+                                String uniqueFileName =
+                                    DateFormat('yyyy-MM-dd HH:mm:ss.SSS')
+                                        .format(DateTime.now())
+                                        .toString();
+
                                 var now = DateTime.now();
                                 var formatter = DateFormat('MMMM');
                                 var monthName = formatter.format(now);
