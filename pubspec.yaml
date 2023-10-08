@@ -35,6 +35,10 @@ dependencies:
   image_grid_view: ^0.0.2
   blurrycontainer: ^1.0.2
   intl: ^0.18.1
+  fluid_bottom_nav_bar: ^1.4.0
+  scroll_to_hide: ^2.0.1
+  image_gallery_saver: ^2.0.3
+  dio: ^5.3.3
 
 dev_dependencies:
   flutter_test:

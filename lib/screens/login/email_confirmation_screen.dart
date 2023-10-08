@@ -19,7 +19,7 @@ class EmailConfimation extends StatelessWidget {
           color: Colors.white, //// change your color here
         ),
         centerTitle: true,
-        toolbarHeight: 100,
+        toolbarHeight: 75,
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: const Text(
@@ -27,6 +27,7 @@ class EmailConfimation extends StatelessWidget {
           style: TextStyle(
             fontSize: 30,
             fontFamily: 'Roboto',
+            fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
           textAlign: TextAlign.center,

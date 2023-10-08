@@ -28,7 +28,7 @@ class LoginScreen extends StatelessWidget {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         centerTitle: true,
-        toolbarHeight: 100,
+        toolbarHeight: 75,
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: const Text(

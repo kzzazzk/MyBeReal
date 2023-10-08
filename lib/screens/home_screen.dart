@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +11,7 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:my_be_real/screens/image_screen.dart';
 import 'package:my_be_real/utils/constants.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
@@ -99,52 +99,51 @@ class _HomeScreenState extends State<HomeScreen> {
           (a, b) => b.compareTo(a),
         );
 
-        return Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: ListView.builder(
-              itemCount: sortedMonthKeys.length,
-              itemBuilder: (context, index) {
-                String monthKey = sortedMonthKeys[index];
-                List<QueryDocumentSnapshot<Object?>>? monthPhotos =
-                    photosByMonth[monthKey];
+        return SafeArea(
+          child: ListView.builder(
+            itemCount: sortedMonthKeys.length,
+            itemBuilder: (context, index) {
+              String monthKey = sortedMonthKeys[index];
+              List<QueryDocumentSnapshot<Object?>>? monthPhotos =
+                  photosByMonth[monthKey];
 
-                DateTime displayDate = DateTime.parse('$monthKey-01');
+              DateTime displayDate = DateTime.parse('$monthKey-01');
 
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: BlurryContainer(
-                    blur: 2,
-                    elevation: 0,
-                    color: Colors.black45,
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          title: Text(
-                            DateFormat('MMMM yyyy').format(displayDate),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 25),
-                          ),
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: BlurryContainer(
+                  blur: 2,
+                  elevation: 0,
+                  color: Colors.black26,
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                          DateFormat('MMMM yyyy').format(displayDate),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 25),
                         ),
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount:
-                                4, // Adjust the number of columns as needed
-                          ),
-                          itemCount: monthPhotos?.length,
-                          itemBuilder: (context, index) {
-                            // Build your photo grid items here
-                            // You can access individual photos with monthPhotos[index]
+                      ),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount:
+                              4, // Adjust the number of columns as needed
+                        ),
+                        itemCount: monthPhotos?.length,
+                        itemBuilder: (context, index) {
+                          // Build your photo grid items here
+                          // You can access individual photos with monthPhotos[index]
 
-                            return Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Center(
-                                child: GestureDetector(
+                          return Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Center(
+                              child: GestureDetector(
                                   child: Container(
                                     width: 200,
                                     height: 200,
@@ -156,18 +155,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
-                                  onTap: () {},
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            FullSizeImageScreen(
+                                          imageUrl:
+                                              monthPhotos?[index].get('url'),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                );
-              },
-            ));
+                ),
+              );
+            },
+          ),
+        );
       },
     );
   }
@@ -176,48 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        centerTitle: true,
-        toolbarHeight: 100,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        title: const Text(
-          'MyBeReal.',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 30,
-            fontFamily: 'Roboto',
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(right: 17, bottom: 5),
-            child: Container(
-              width: 45, // Adjust the width to make the circle smaller
-              height: 45,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black, // Set the background color here
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.logout,
-                  color: Colors.white,
-                ), // You can use any icon you prefer
-                onPressed: () {
-                  FirebaseAuth.instance.signOut();
-
-                  Get.offNamed('/login');
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
       body: Stack(
         children: [
           // Your background gradient
@@ -232,85 +201,94 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           // PageView and CurvedNavigationBar
-          Stack(
-            children: [
-              // PageView for tab content
-              PageView(
-                controller: _pageViewController,
-                onPageChanged: _onItemTapped,
-                children: [
-                  buildUserFotoGrid(0),
-                  buildUserFotoGrid(1),
-                ],
-              ),
-              // CurvedNavigationBar
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: CurvedNavigationBar(
-                  color: Colors.black,
-                  backgroundColor: const Color(0x00000000),
-                  buttonBackgroundColor: Colors.black,
-                  items: <Widget>[
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(top: padding1),
-                          child: Icon(
-                            Icons.person,
-                            size: 30,
-                            color: selectedColor,
-                          ),
+          NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                    SliverAppBar(
+                      floating: true,
+                      centerTitle: true,
+                      toolbarHeight: 75,
+                      elevation: 0,
+                      backgroundColor: Colors.transparent,
+                      title: const Text(
+                        'MyBeReal.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30,
+                          fontFamily: 'Roboto',
+                          color: Colors.white,
                         ),
-                        Visibility(
-                          visible: !hideLabels1,
-                          child: Text(
-                            'Enviados por mí',
-                            style: TextStyle(
-                              color: selectedColor,
+                        textAlign: TextAlign.center,
+                      ),
+                      actions: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: Container(
+                            width:
+                                45, // Adjust the width to make the circle smaller
+                            height: 45,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color:
+                                  Colors.red, // Set the background color here
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.logout,
+                                color: Colors.white,
+                              ), // You can use any icon you prefer
+                              onPressed: () {
+                                FirebaseAuth.instance.signOut();
+
+                                Get.offNamed('/login');
+                              },
                             ),
                           ),
                         ),
                       ],
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(top: padding2),
-                          child: Icon(
-                            Icons.people,
-                            size: 30,
-                            color: selectedColor,
-                          ),
-                        ),
-                        Visibility(
-                          visible: !hideLabels2,
-                          child: Text(
-                            'Enviados por mi pareja',
-                            style: TextStyle(
-                              color: selectedColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    )
                   ],
-                  index: _selectedIndex,
-                  onTap: _onItemTapped,
-                  animationDuration: const Duration(milliseconds: 200),
-                  animationCurve: Curves.easeInOut,
-                ),
-              ),
-            ],
+              body: Stack(
+                children: [
+                  // PageView for tab content
+                  PageView(
+                    controller: _pageViewController,
+                    onPageChanged: _onItemTapped,
+                    children: [
+                      buildUserFotoGrid(0),
+                      buildUserFotoGrid(1),
+                    ],
+                  ),
+                  // CurvedNavigationBar
+                ],
+              )),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white,
+        backgroundColor: Colors.black,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.person,
+              color: Colors.white,
+            ),
+            label: 'Enviados por mí',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.people,
+              color: Colors.white,
+            ),
+            label: 'Enviados por mi pareja',
           ),
         ],
       ),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 90.0),
+        padding: const EdgeInsets.only(bottom: 10),
         child: ExpandableFab(
           openButtonBuilder: RotateFloatingActionButtonBuilder(
             shape: const CircleBorder(),
