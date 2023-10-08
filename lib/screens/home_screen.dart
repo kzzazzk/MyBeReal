@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
@@ -377,10 +376,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         return CupertinoAlertDialog(
                           content: Column(children: [
                             const Text(
-                              'CONFIRMAR ENVÍO',
+                              '¿Estás seguro de que quieres enviar esta foto?',
                               style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 20,
                             ),
                             Image.file(
                               File(image.path),
@@ -461,36 +464,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   final picker = ImagePicker();
                   XFile? image =
                       await picker.pickImage(source: ImageSource.camera);
-                  final data = await image?.readAsBytes();
-                  final codec = await ui.instantiateImageCodec(data!);
-                  final info = await codec.getNextFrame();
-                  final imageWidth = info.image.width.toDouble();
-                  final imageHeight = info.image.height.toDouble();
+
                   if (mounted && image != null) {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Confirmar'),
-                          content: Column(
-                            children: [
-                              const Text(
-                                  '¿Estás seguro de que quieres subir esta foto?'),
-                              Image.file(
-                                File(image.path),
-                                height: imageHeight,
-                                width: imageWidth,
+                        return CupertinoAlertDialog(
+                          content: Column(children: [
+                            const Text(
+                              '¿Estás seguro de que quieres enviar esta foto?',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            Image.file(
+                              File(image.path),
+                            ),
+                          ]),
                           actions: [
-                            TextButton(
+                            CupertinoDialogAction(
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: const Text('Cancelar'),
+                              child: const Text(
+                                'Cancelar',
+                                style: TextStyle(color: Colors.redAccent),
+                              ),
                             ),
-                            TextButton(
+                            CupertinoDialogAction(
                               onPressed: () async {
                                 String uniqueFileName = DateTime.now()
                                     .millisecondsSinceEpoch
@@ -522,14 +527,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Navigator.of(context).pop();
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content:
-                                            Text('Imagen subida con éxito.'),
+                                        content: Text(
+                                          'Imagen subida con éxito.',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
                                       ),
                                     );
                                   }
                                 }
                               },
-                              child: const Text('Aceptar'),
+                              child: const Text(
+                                'Aceptar',
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
                           ],
                         );
