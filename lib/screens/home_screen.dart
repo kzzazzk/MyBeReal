@@ -26,6 +26,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final _key = GlobalKey<ExpandableFabState>();
   final PageController _pageViewController = PageController();
   int _selectedIndex = 0;
   bool hideLabels1 = true;
@@ -34,7 +35,6 @@ class _HomeScreenState extends State<HomeScreen> {
   double padding1 = 0;
   double padding2 = 20;
   bool isLoading = true;
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -349,6 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 10),
         child: ExpandableFab(
+          key: _key,
           openButtonBuilder: RotateFloatingActionButtonBuilder(
             shape: const CircleBorder(),
             child: const Icon(
@@ -371,9 +372,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           distance: 70,
           type: ExpandableFabType.up,
-          overlayStyle: ExpandableFabOverlayStyle(
-            blur: 2,
-          ),
           children: [
             FloatingActionButton(
                 shape: const CircleBorder(),
@@ -387,7 +385,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   final picker = ImagePicker();
                   XFile? image =
                       await picker.pickImage(source: ImageSource.gallery);
-
+                  final state = _key.currentState;
+                  if (state != null) {
+                    debugPrint('isOpen:${state.isOpen}');
+                    state.toggle();
+                  }
                   if (mounted && image != null) {
                     showDialog(
                       context: context,
@@ -487,7 +489,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   final picker = ImagePicker();
                   XFile? image =
                       await picker.pickImage(source: ImageSource.camera);
-
+                  final state = _key.currentState;
+                  if (state != null) {
+                    debugPrint('isOpen:${state.isOpen}');
+                    state.toggle();
+                  }
                   if (mounted && image != null) {
                     showDialog(
                       context: context,
@@ -574,6 +580,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     );
                   }
+
                   // upload the image to Firebase Storage
                 }),
           ],
