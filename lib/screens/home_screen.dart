@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
+import 'package:intl/intl.dart';
 
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
@@ -14,7 +15,6 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:my_be_real/utils/constants.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
@@ -154,7 +154,11 @@ class _HomeScreenState extends State<HomeScreen> {
             showDialog(
               context: context,
               builder: (BuildContext context) {
-                return buildImagePreviewDialog(monthPhotos, index);
+                return buildImagePreviewDialog(
+                  monthPhotos,
+                  index,
+                  Uri.parse(monthPhotos?[index].get('url')).pathSegments.last,
+                );
               },
             );
           },
@@ -174,8 +178,73 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  String keepEverythingAfterFirstSlash(String inputStr) {
+    final indexOfFirstSlash = inputStr.indexOf('/');
+
+    if (indexOfFirstSlash >= 0) {
+      // If a slash is found, return the substring after it.
+      return inputStr.substring(indexOfFirstSlash + 1);
+    } else {
+      // If no slash is found, return the original string.
+      return inputStr;
+    }
+  }
+
+  String formatToCustomString(String inputDateStr) {
+    try {
+      final parts = inputDateStr.split(' ');
+      final dateParts = parts[0].split('-');
+      final timePart = parts[1].substring(0, 8); // Extract HH:MM:SS part
+      final day = dateParts[2];
+      final month = DateFormat.MMMM('en_US').format(DateTime(
+        int.parse(dateParts[0]),
+        int.parse(dateParts[1]),
+        int.parse(day),
+      ));
+      final year = dateParts[0];
+
+      final result =
+          '$day${_getDaySuffix(int.parse(day))} $month $year $timePart';
+
+      return result;
+    } catch (e) {
+      print('Error formatting date: $e');
+      return '';
+    }
+  }
+
+  String _getDaySuffix(int day) {
+    if (day >= 11 && day <= 13) {
+      return 'th';
+    }
+    final lastDigit = day % 10;
+    String suffix;
+    switch (lastDigit) {
+      case 1:
+        suffix = 'st';
+        break;
+      case 2:
+        suffix = 'nd';
+        break;
+      case 3:
+        suffix = 'rd';
+        break;
+      default:
+        suffix = 'th';
+    }
+    if (day >= 10 && day <= 20) {
+      suffix = 'th';
+    }
+
+    // Remove the leading '0' if present
+
+    return '$suffix';
+  }
+
   Widget buildImagePreviewDialog(
-      List<QueryDocumentSnapshot<Object?>>? monthPhotos, int index) {
+      List<QueryDocumentSnapshot<Object?>>? monthPhotos,
+      int index,
+      String name) {
     return Stack(
       children: [
         // Blurred background
@@ -192,6 +261,13 @@ class _HomeScreenState extends State<HomeScreen> {
         CupertinoAlertDialog(
           content: Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text(
+                  formatToCustomString(keepEverythingAfterFirstSlash(name)),
+                  style: const TextStyle(fontSize: 18),
+                ),
+              ),
               ClipRRect(
                 borderRadius: BorderRadius.circular(5),
                 child: Image.network(
