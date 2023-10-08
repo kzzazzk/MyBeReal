@@ -113,6 +113,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return text[0].toUpperCase() + text.substring(1);
   }
 
+  String removeWordFromString(String inputString, String wordToRemove) {
+    // Usar la función replaceAll para reemplazar la palabra con una cadena vacía
+    String result = inputString.replaceAll(wordToRemove, '-');
+
+    // Eliminar espacios en blanco adicionales resultantes
+    result = result.trim();
+    return result;
+  }
+
   Widget buildBlurredPhotoGrid(
       List<QueryDocumentSnapshot<Object?>>? monthPhotos, DateTime displayDate) {
     return Padding(
@@ -126,8 +135,10 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             ListTile(
               title: Text(
-                capitalizeFirstLetter(
-                    DateFormat.yMMMM('es_ES').format(displayDate)),
+                removeWordFromString(
+                    capitalizeFirstLetter(
+                        DateFormat.yMMMM('es_ES').format(displayDate)),
+                    'de'),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
