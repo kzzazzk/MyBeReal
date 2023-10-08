@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
-import 'package:intl/intl.dart';
 
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
@@ -15,6 +14,7 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:my_be_real/utils/constants.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
@@ -657,7 +657,10 @@ class _HomeScreenState extends State<HomeScreen> {
         if (task.state == TaskState.success) {
           final downloadUrl = await ref.getDownloadURL();
 
-          FirebaseFirestore.instance.collection('fotos').add({
+          FirebaseFirestore.instance
+              .collection('fotos')
+              .doc(uniqueFileName)
+              .set({
             'url': downloadUrl,
             'timestamp': FieldValue.serverTimestamp(),
             'user_id': Constants.authUserEmail,
