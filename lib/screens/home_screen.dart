@@ -1,14 +1,17 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:get/get.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:my_be_real/utils/constants.dart';
@@ -174,17 +177,43 @@ class _HomeScreenState extends State<HomeScreen> {
                                             //dialog action para download image
                                             CupertinoDialogAction(
                                               onPressed: () async {
-                                                Navigator.of(context).pop();
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                      'Imagen descargada con éxito.',
-                                                      style: TextStyle(
-                                                          color: Colors.white),
-                                                    ),
-                                                  ),
+                                                var response = await Dio().get(
+                                                  monthPhotos?[index]
+                                                      .get('url'),
+                                                  options: Options(
+                                                      responseType:
+                                                          ResponseType.bytes),
                                                 );
+
+                                                String uniqueFileName = DateFormat(
+                                                        'yyyy-MM-dd HH:mm:ss.SSS')
+                                                    .format(monthPhotos?[index]
+                                                        .get('timestamp')
+                                                        .toDate())
+                                                    .toString();
+
+                                                final result =
+                                                    await ImageGallerySaver
+                                                        .saveImage(
+                                                            Uint8List.fromList(
+                                                                response.data),
+                                                            quality: 60,
+                                                            name:
+                                                                uniqueFileName);
+                                                if (mounted && result != null) {
+                                                  Navigator.of(context).pop();
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        'Imagen descargada con éxito.',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
                                               },
                                               child: const Text('Descargar',
                                                   style: TextStyle(
@@ -392,9 +421,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             CupertinoDialogAction(
                               onPressed: () async {
-                                String uniqueFileName = DateTime.now()
-                                    .millisecondsSinceEpoch
-                                    .toString();
+                                String uniqueFileName =
+                                    DateFormat('yyyy-MM-dd HH:mm:ss.SSS')
+                                        .format(DateTime.now())
+                                        .toString();
                                 var now = DateTime.now();
                                 var formatter = DateFormat('MMMM');
                                 var monthName = formatter.format(now);
