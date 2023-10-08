@@ -106,6 +106,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  String capitalizeFirstLetter(String text) {
+    if (text.isEmpty) {
+      return text;
+    }
+    return text[0].toUpperCase() + text.substring(1);
+  }
+
   Widget buildBlurredPhotoGrid(
       List<QueryDocumentSnapshot<Object?>>? monthPhotos, DateTime displayDate) {
     return Padding(
@@ -119,7 +126,8 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             ListTile(
               title: Text(
-                DateFormat('MMMM yyyy').format(displayDate),
+                capitalizeFirstLetter(
+                    DateFormat.yMMMM('es_ES').format(displayDate)),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
