@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -59,6 +60,28 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  String? formatString(String input) {
+    // Define a regular expression pattern to match the desired format.
+    final pattern = RegExp(r'-(\d)(?![\d-])');
+
+    // Use the replaceAll method to replace matches with the modified string.
+    final formattedString = input.replaceAllMapped(pattern, (match) {
+      // Extract the matched number.
+      final number = match.group(1);
+
+      // Check if it's a '1' followed by another number.
+      if (number == '1') {
+        // If it is, return the original match without modifications.
+        return match.group(0) as String;
+      } else {
+        // If it's any other number not followed by anything, add a '0' before it.
+        return '-0$number';
+      }
+    });
+
+    return formattedString;
+  }
+
   Widget buildUserFotoGrid(int index) {
     return StreamBuilder(
       stream: index == 0
@@ -96,8 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
               String monthKey = sortedMonthKeys[index];
               List<QueryDocumentSnapshot<Object?>>? monthPhotos =
                   photosByMonth[monthKey];
-
-              DateTime displayDate = DateTime.parse('$monthKey-01');
+              DateTime displayDate =
+                  DateTime.parse('${formatString(monthKey)}-01');
 
               return buildBlurredPhotoGrid(monthPhotos, displayDate);
             },
@@ -221,8 +244,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Text(
-                  "${DateFormat.yMMMMd('es_ES').format(monthPhotos?[index].get('timestamp').toDate())} ${DateFormat('HH:mm:ss', 'es_ES').format(monthPhotos?[index].get('timestamp').toDate())}",
-                  style: const TextStyle(fontSize: 18),
+                  "${DateFormat.yMMMMd('es_ES').format(monthPhotos?[index].get('timestamp').toDate())} \n (${DateFormat('HH:mm', 'es_ES').format(monthPhotos?[index].get('timestamp').toDate())})",
+                  style: const TextStyle(fontSize: 20),
                 ),
               ),
               ClipRRect(
@@ -382,16 +405,26 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       bottomNavigationBar: MoltenBottomNavigationBar(
+        domeCircleColor: Constants.authUserEmail == dotenv.env['ZAKA_ID']
+            ? const Color(0XFFFF5C5C)
+            : const Color(0xFF6C4983),
+        barColor: Colors.black,
         selectedIndex: _selectedIndex,
         onTabChange: _onItemTapped,
         tabs: [
           MoltenTab(
             icon: const Icon(Icons.person),
-            title: const Text('Enviados por mí'),
+            title: const Text(
+              'Enviados por mí',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
           MoltenTab(
             icon: const Icon(Icons.people),
-            title: const Text('Enviados por mi pareja'),
+            title: const Text(
+              'Enviados por mi pareja',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -445,7 +478,6 @@ class _HomeScreenState extends State<HomeScreen> {
         XFile? image = await picker.pickImage(source: ImageSource.gallery);
         final state = _key.currentState;
         if (state != null) {
-          debugPrint('isOpen:${state.isOpen}');
           state.toggle();
         }
         if (mounted && image != null) {
@@ -596,10 +628,11 @@ class _HomeScreenState extends State<HomeScreen> {
             .format(DateTime.now())
             .toString();
         var now = DateTime.now();
-        var formatter = DateFormat('MMMM');
-        var monthName = formatter.format(now);
+        var monthFormatter = DateFormat('MMMM');
+        var monthName = monthFormatter.format(now);
         final storage = FirebaseStorage.instance;
-        final ref = storage.ref().child('$monthName/$uniqueFileName');
+        final ref =
+            storage.ref().child('${now.year}/$monthName/$uniqueFileName');
         final task = await ref.putFile(File(image.path));
 
         if (task.state == TaskState.success) {
