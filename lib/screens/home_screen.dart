@@ -85,14 +85,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Iterate through the photos and group them by month
         for (var foto in fotos!) {
-          DateTime timestamp = foto['timestamp'].toDate();
-          String monthKey = '${timestamp.year}-${timestamp.month}';
+          if (foto['timestamp'] != null) {
+            DateTime timestamp = foto['timestamp'].toDate();
+            String monthKey = '${timestamp.year}-${timestamp.month}';
 
-          if (!photosByMonth.containsKey(monthKey)) {
-            photosByMonth[monthKey] = [];
+            if (!photosByMonth.containsKey(monthKey)) {
+              photosByMonth[monthKey] = [];
+            }
+
+            photosByMonth[monthKey]!.add(foto);
           }
-
-          photosByMonth[monthKey]!.add(foto);
         }
 
         // Create a sorted list of month keys
