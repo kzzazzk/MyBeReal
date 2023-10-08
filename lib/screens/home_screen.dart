@@ -169,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 child: const Text(
                                                   'Atrás',
                                                   style: TextStyle(
-                                                      color: Colors.black),
+                                                      color: Colors.redAccent),
                                                 )),
                                             //dialog action para download image
                                             CupertinoDialogAction(
@@ -442,7 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                               child: const Text(
                                 'Aceptar',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: Colors.green),
                               ),
                             ),
                           ],
@@ -538,7 +538,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                               child: const Text(
                                 'Aceptar',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: Colors.green),
                               ),
                             ),
                           ],
