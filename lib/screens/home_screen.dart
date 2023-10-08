@@ -657,10 +657,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (task.state == TaskState.success) {
           final downloadUrl = await ref.getDownloadURL();
 
-          FirebaseFirestore.instance
-              .collection('fotos')
-              .doc(uniqueFileName)
-              .set({
+          FirebaseFirestore.instance.collection('fotos').add({
             'url': downloadUrl,
             'timestamp': FieldValue.serverTimestamp(),
             'user_id': Constants.authUserEmail,
