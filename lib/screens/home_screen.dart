@@ -12,10 +12,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:get/get.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:molten_navigationbar_flutter/molten_navigationbar_flutter.dart';
 import 'package:my_be_real/utils/constants.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
@@ -381,35 +381,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.black, // Color de fondo de la barra de navegación
-          boxShadow: [
-            BoxShadow(blurRadius: 20, color: Colors.black.withOpacity(.1))
-          ],
-        ),
-        child: GNav(
-          gap: 8,
-          activeColor: Colors.white, // Color del ícono activo
-          color: Colors.white, // Color del ícono inactivo
-          iconSize: 24,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          duration: const Duration(milliseconds: 800),
-          tabBackgroundColor: Colors.purple[200]!, //
-          selectedIndex: _selectedIndex,
-          onTabChange: _onItemTapped,
-          tabs: const [
-            GButton(
-              icon: Icons.person,
-              text: 'Enviados por mí',
-            ),
-            GButton(
-              icon: Icons.people,
-              text: 'Enviados por mi pareja',
-            ),
-          ],
-        ),
+      bottomNavigationBar: MoltenBottomNavigationBar(
+        selectedIndex: _selectedIndex,
+        onTabChange: _onItemTapped,
+        tabs: [
+          MoltenTab(
+            icon: const Icon(Icons.person),
+            title: const Text('Enviados por mí'),
+          ),
+          MoltenTab(
+            icon: const Icon(Icons.people),
+            title: const Text('Enviados por mi pareja'),
+          ),
+        ],
       ),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: Padding(
