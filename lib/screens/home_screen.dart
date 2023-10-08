@@ -6,12 +6,12 @@ import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:my_be_real/screens/image_screen.dart';
 import 'package:my_be_real/utils/constants.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
@@ -143,30 +143,71 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Padding(
                             padding: const EdgeInsets.all(5.0),
                             child: Center(
-                              child: GestureDetector(
-                                  child: Container(
-                                    width: 200,
-                                    height: 200,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(5),
-                                      child: Image.network(
-                                        monthPhotos?[index].get('url'),
-                                        fit: BoxFit.cover,
-                                      ),
+                              child: InkWell(
+                                onTap: () {
+                                  showCupertinoDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return CupertinoAlertDialog(
+                                          content: Column(
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                child: Image.network(
+                                                  monthPhotos?[index]
+                                                      .get('url'),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          actions: [
+                                            CupertinoDialogAction(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text(
+                                                  'Atrás',
+                                                  style: TextStyle(
+                                                      color: Colors.black),
+                                                )),
+                                            //dialog action para download image
+                                            CupertinoDialogAction(
+                                              onPressed: () async {
+                                                // logica para descargar
+                                                Navigator.of(context).pop();
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Imagen descargada con éxito.',
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: const Text('Descargar',
+                                                  style: TextStyle(
+                                                      color: Colors.blue)),
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                },
+                                child: SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(5),
+                                    child: Image.network(
+                                      monthPhotos?[index].get('url'),
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            FullSizeImageScreen(
-                                          imageUrl:
-                                              monthPhotos?[index].get('url'),
-                                        ),
-                                      ),
-                                    );
-                                  }),
+                                ),
+                              ),
                             ),
                           );
                         },
@@ -328,57 +369,34 @@ class _HomeScreenState extends State<HomeScreen> {
                   final picker = ImagePicker();
                   XFile? image =
                       await picker.pickImage(source: ImageSource.gallery);
-                  final data = await image?.readAsBytes();
-                  final codec = await ui.instantiateImageCodec(data!);
-                  final info = await codec.getNextFrame();
-
-                  // Get the image width and height
-                  final imageWidth = info.image.width.toDouble();
-                  final imageHeight = info.image.height.toDouble();
 
                   if (mounted && image != null) {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return AlertDialog(
-                          surfaceTintColor: Colors.transparent,
-                          backgroundColor: Colors.black87,
-                          title: const Text(
-                            'Confirmar envío',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          content: Column(
-                            mainAxisSize: MainAxisSize
-                                .min, // Make the column size as small as possible
-                            children: [
-                              const Text(
-                                '¿Estás seguro de que quieres subir esta foto?',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              SizedBox(
-                                width: imageWidth,
-                                height: imageHeight,
-                                child: FittedBox(
-                                  fit: BoxFit
-                                      .contain, // Adjust the fit as needed
-                                  child: Image.file(
-                                    File(image.path),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        return CupertinoAlertDialog(
+                          content: Column(children: [
+                            const Text(
+                              'CONFIRMAR ENVÍO',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            Image.file(
+                              File(image.path),
+                            ),
+                          ]),
                           actions: [
-                            TextButton(
+                            CupertinoDialogAction(
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
                               child: const Text(
                                 'Cancelar',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: Colors.redAccent),
                               ),
                             ),
-                            TextButton(
+                            CupertinoDialogAction(
                               onPressed: () async {
                                 String uniqueFileName = DateTime.now()
                                     .millisecondsSinceEpoch
