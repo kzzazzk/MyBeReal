@@ -678,7 +678,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: const Text(
         'Aceptar',
-        style: TextStyle(color: Colors.green),
+        style: TextStyle(color: Colors.blue),
       ),
     );
   }
