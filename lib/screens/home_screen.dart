@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
@@ -35,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double padding1 = 0;
   double padding2 = 20;
   bool isLoading = true;
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -80,28 +82,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
         final fotos = snapshot.data?.docs;
 
-        // Create a Map to organize photos by month
-        Map<String, List<QueryDocumentSnapshot>> photosByMonth = {};
+        Map<String, List<QueryDocumentSnapshot>> photosByMonth =
+            groupPhotosByMonth(fotos);
 
-        // Iterate through the photos and group them by month
-        for (var foto in fotos!) {
-          if (foto['timestamp'] != null) {
-            DateTime timestamp = foto['timestamp'].toDate();
-            String monthKey = '${timestamp.year}-${timestamp.month}';
-
-            if (!photosByMonth.containsKey(monthKey)) {
-              photosByMonth[monthKey] = [];
-            }
-
-            photosByMonth[monthKey]!.add(foto);
-          }
-        }
-
-        // Create a sorted list of month keys
-        List<String> sortedMonthKeys = photosByMonth.keys.toList();
-        sortedMonthKeys.sort(
-          (a, b) => b.compareTo(a),
-        );
+        List<String> sortedMonthKeys = photosByMonth.keys.toList()
+          ..sort((a, b) => b.compareTo(a));
 
         return SafeArea(
           child: ListView.builder(
@@ -113,143 +98,184 @@ class _HomeScreenState extends State<HomeScreen> {
 
               DateTime displayDate = DateTime.parse('$monthKey-01');
 
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: BlurryContainer(
-                  blur: 2,
-                  elevation: 0,
-                  color: Colors.black26,
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title: Text(
-                          DateFormat('MMMM yyyy').format(displayDate),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 25),
-                        ),
-                      ),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount:
-                              4, // Adjust the number of columns as needed
-                        ),
-                        itemCount: monthPhotos?.length,
-                        itemBuilder: (context, index) {
-                          // Build your photo grid items here
-                          // You can access individual photos with monthPhotos[index]
-
-                          return Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Center(
-                              child: InkWell(
-                                onTap: () {
-                                  showCupertinoDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return CupertinoAlertDialog(
-                                          content: Column(
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                child: Image.network(
-                                                  monthPhotos?[index]
-                                                      .get('url'),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          actions: [
-                                            CupertinoDialogAction(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: const Text(
-                                                  'Atrás',
-                                                  style: TextStyle(
-                                                      color: Colors.redAccent),
-                                                )),
-                                            //dialog action para download image
-                                            CupertinoDialogAction(
-                                              onPressed: () async {
-                                                var response = await Dio().get(
-                                                  monthPhotos?[index]
-                                                      .get('url'),
-                                                  options: Options(
-                                                      responseType:
-                                                          ResponseType.bytes),
-                                                );
-
-                                                String uniqueFileName = DateFormat(
-                                                        'yyyy-MM-dd HH:mm:ss.SSS')
-                                                    .format(monthPhotos?[index]
-                                                        .get('timestamp')
-                                                        .toDate())
-                                                    .toString();
-
-                                                final result =
-                                                    await ImageGallerySaver
-                                                        .saveImage(
-                                                            Uint8List.fromList(
-                                                                response.data),
-                                                            quality: 60,
-                                                            name:
-                                                                uniqueFileName);
-                                                if (mounted && result != null) {
-                                                  Navigator.of(context).pop();
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                        'Imagen descargada con éxito.',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                              child: const Text('Descargar',
-                                                  style: TextStyle(
-                                                      color: Colors.blue)),
-                                            ),
-                                          ],
-                                        );
-                                      });
-                                },
-                                child: SizedBox(
-                                  width: 200,
-                                  height: 200,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(5),
-                                    child: Image.network(
-                                      monthPhotos?[index].get('url'),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              );
+              return buildBlurredPhotoGrid(monthPhotos, displayDate);
             },
           ),
         );
       },
     );
+  }
+
+  Widget buildBlurredPhotoGrid(
+      List<QueryDocumentSnapshot<Object?>>? monthPhotos, DateTime displayDate) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: BlurryContainer(
+        blur: 2,
+        elevation: 0,
+        color: Colors.black26,
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
+        child: Column(
+          children: [
+            ListTile(
+              title: Text(
+                DateFormat('MMMM yyyy').format(displayDate),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 25,
+                ),
+              ),
+            ),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+              ),
+              itemCount: monthPhotos?.length,
+              itemBuilder: (context, index) {
+                return buildPhotoGridItem(monthPhotos, index);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildPhotoGridItem(
+      List<QueryDocumentSnapshot<Object?>>? monthPhotos, int index) {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Center(
+        child: InkWell(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return buildImagePreviewDialog(monthPhotos, index);
+              },
+            );
+          },
+          child: SizedBox(
+            width: 200,
+            height: 200,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: Image.network(
+                monthPhotos?[index].get('url'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildImagePreviewDialog(
+      List<QueryDocumentSnapshot<Object?>>? monthPhotos, int index) {
+    return Stack(
+      children: [
+        // Blurred background
+        BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: 3.0,
+            sigmaY: 3.0,
+          ),
+          child: Container(
+            color: Colors.transparent,
+          ),
+        ),
+        // CupertinoAlertDialog
+        CupertinoAlertDialog(
+          content: Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: Image.network(
+                  monthPhotos?[index].get('url'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Atrás',
+                style: TextStyle(
+                  color: Colors.redAccent,
+                ),
+              ),
+            ),
+            buildDownloadAction(monthPhotos, index),
+          ],
+        ),
+      ],
+    );
+  }
+
+  CupertinoDialogAction buildDownloadAction(
+      List<QueryDocumentSnapshot<Object?>>? monthPhotos, int index) {
+    return CupertinoDialogAction(
+      onPressed: () async {
+        var response = await Dio().get(
+          monthPhotos?[index].get('url'),
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+        String uniqueFileName = DateFormat('yyyy-MM-dd HH:mm:ss.SSS')
+            .format(monthPhotos?[index].get('timestamp').toDate())
+            .toString();
+
+        final result = await ImageGallerySaver.saveImage(
+          Uint8List.fromList(response.data),
+          quality: 60,
+          name: uniqueFileName,
+        );
+
+        if (mounted && result != null) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Imagen descargada con éxito.',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          );
+        }
+      },
+      child: const Text(
+        'Descargar',
+        style: TextStyle(color: Colors.blue),
+      ),
+    );
+  }
+
+  Map<String, List<QueryDocumentSnapshot>> groupPhotosByMonth(
+      List<QueryDocumentSnapshot<Object?>>? fotos) {
+    Map<String, List<QueryDocumentSnapshot>> photosByMonth = {};
+
+    for (var foto in fotos!) {
+      if (foto['timestamp'] != null) {
+        DateTime timestamp = foto['timestamp'].toDate();
+        String monthKey = '${timestamp.year}-${timestamp.month}';
+
+        if (!photosByMonth.containsKey(monthKey)) {
+          photosByMonth[monthKey] = [];
+        }
+
+        photosByMonth[monthKey]!.add(foto);
+      }
+    }
+
+    return photosByMonth;
   }
 
   @override
@@ -272,54 +298,54 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           // PageView and CurvedNavigationBar
           NestedScrollView(
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                    SliverAppBar(
-                      floating: true,
-                      centerTitle: true,
-                      toolbarHeight: 75,
-                      elevation: 0,
-                      backgroundColor: Colors.transparent,
-                      title: const Text(
-                        'MyBeReal.',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30,
-                          fontFamily: 'Roboto',
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      actions: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(right: 5),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.logout,
-                              color: Colors.white,
-                            ), // You can use any icon you prefer
-                            onPressed: () {
-                              FirebaseAuth.instance.signOut();
-                              Get.offNamed('/login');
-                            },
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-              body: Stack(
-                children: [
-                  // PageView for tab content
-                  PageView(
-                    controller: _pageViewController,
-                    onPageChanged: _onItemTapped,
-                    children: [
-                      buildUserFotoGrid(0),
-                      buildUserFotoGrid(1),
-                    ],
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              SliverAppBar(
+                floating: true,
+                centerTitle: true,
+                toolbarHeight: 75,
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                title: const Text(
+                  'MyBeReal.',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30,
+                    fontFamily: 'Roboto',
+                    color: Colors.white,
                   ),
-                  // CurvedNavigationBar
+                  textAlign: TextAlign.center,
+                ),
+                actions: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.logout,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        FirebaseAuth.instance.signOut();
+                        Get.offNamed('/login');
+                      },
+                    ),
+                  ),
                 ],
-              )),
+              )
+            ],
+            body: Stack(
+              children: [
+                // PageView for tab content
+                PageView(
+                  controller: _pageViewController,
+                  onPageChanged: _onItemTapped,
+                  children: [
+                    buildUserFotoGrid(0),
+                    buildUserFotoGrid(1),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -373,218 +399,210 @@ class _HomeScreenState extends State<HomeScreen> {
           distance: 70,
           type: ExpandableFabType.up,
           children: [
-            FloatingActionButton(
-                shape: const CircleBorder(),
-                backgroundColor: Colors.black,
-                heroTag: null,
-                child: const Icon(
-                  Icons.add_photo_alternate_outlined,
-                  color: Colors.white,
-                ),
-                onPressed: () async {
-                  final picker = ImagePicker();
-                  XFile? image =
-                      await picker.pickImage(source: ImageSource.gallery);
-                  final state = _key.currentState;
-                  if (state != null) {
-                    debugPrint('isOpen:${state.isOpen}');
-                    state.toggle();
-                  }
-                  if (mounted && image != null) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return CupertinoAlertDialog(
-                          content: Column(children: [
-                            const Text(
-                              '¿Estás seguro de que quieres enviar esta foto?',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20,
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              child: Image.file(
-                                File(image.path),
-                              ),
-                            ),
-                          ]),
-                          actions: [
-                            CupertinoDialogAction(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text(
-                                'Cancelar',
-                                style: TextStyle(color: Colors.redAccent),
-                              ),
-                            ),
-                            CupertinoDialogAction(
-                              onPressed: () async {
-                                String uniqueFileName =
-                                    DateFormat('yyyy-MM-dd HH:mm:ss.SSS')
-                                        .format(DateTime.now())
-                                        .toString();
-                                var now = DateTime.now();
-                                var formatter = DateFormat('MMMM');
-                                var monthName = formatter.format(now);
-                                final storage = FirebaseStorage.instance;
-                                final ref = storage
-                                    .ref()
-                                    .child('$monthName/$uniqueFileName');
-                                final task =
-                                    await ref.putFile(File(image.path));
-
-                                if (task.state == TaskState.success) {
-                                  final downloadUrl =
-                                      await ref.getDownloadURL();
-
-                                  // Guardar la URL de la imagen en Firestore
-                                  FirebaseFirestore.instance
-                                      .collection('fotos')
-                                      .add({
-                                    'url': downloadUrl,
-                                    'timestamp': FieldValue.serverTimestamp(),
-                                    'user_id': Constants.authUserEmail,
-                                  });
-
-                                  if (mounted) {
-                                    Navigator.of(context).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Imagen subida con éxito.',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                              child: const Text(
-                                'Aceptar',
-                                style: TextStyle(color: Colors.green),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                  // upload the image to Firebase Storage
-                }),
-            FloatingActionButton(
-                shape: const CircleBorder(),
-                backgroundColor: Colors.black,
-                heroTag: null,
-                child: const Icon(
-                  Icons.add_a_photo_outlined,
-                  color: Colors.white,
-                ),
-                onPressed: () async {
-                  final picker = ImagePicker();
-                  XFile? image =
-                      await picker.pickImage(source: ImageSource.camera);
-                  final state = _key.currentState;
-                  if (state != null) {
-                    debugPrint('isOpen:${state.isOpen}');
-                    state.toggle();
-                  }
-                  if (mounted && image != null) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return CupertinoAlertDialog(
-                          content: Column(children: [
-                            const Text(
-                              '¿Estás seguro de que quieres enviar esta foto?',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20,
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              child: Image.file(
-                                File(image.path),
-                              ),
-                            ),
-                          ]),
-                          actions: [
-                            CupertinoDialogAction(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text(
-                                'Cancelar',
-                                style: TextStyle(color: Colors.redAccent),
-                              ),
-                            ),
-                            CupertinoDialogAction(
-                              onPressed: () async {
-                                String uniqueFileName =
-                                    DateFormat('yyyy-MM-dd HH:mm:ss.SSS')
-                                        .format(DateTime.now())
-                                        .toString();
-
-                                var now = DateTime.now();
-                                var formatter = DateFormat('MMMM');
-                                var monthName = formatter.format(now);
-                                final storage = FirebaseStorage.instance;
-                                final ref = storage
-                                    .ref()
-                                    .child('$monthName/$uniqueFileName');
-                                final task =
-                                    await ref.putFile(File(image.path));
-
-                                if (task.state == TaskState.success) {
-                                  final downloadUrl =
-                                      await ref.getDownloadURL();
-
-                                  // Guardar la URL de la imagen en Firestore
-                                  FirebaseFirestore.instance
-                                      .collection('fotos')
-                                      .add({
-                                    'url': downloadUrl,
-                                    'timestamp': FieldValue.serverTimestamp(),
-                                    'user_id': Constants.authUserEmail,
-                                  });
-
-                                  if (mounted) {
-                                    Navigator.of(context).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Imagen subida con éxito.',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                              child: const Text(
-                                'Aceptar',
-                                style: TextStyle(color: Colors.green),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-
-                  // upload the image to Firebase Storage
-                }),
+            buildGalleryImageUploadButton(),
+            buildCameraImageUploadButton(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget buildGalleryImageUploadButton() {
+    return FloatingActionButton(
+      shape: const CircleBorder(),
+      backgroundColor: Colors.black,
+      heroTag: null,
+      child: const Icon(
+        Icons.add_photo_alternate_outlined,
+        color: Colors.white,
+      ),
+      onPressed: () async {
+        final picker = ImagePicker();
+        XFile? image = await picker.pickImage(source: ImageSource.gallery);
+        final state = _key.currentState;
+        if (state != null) {
+          debugPrint('isOpen:${state.isOpen}');
+          state.toggle();
+        }
+        if (mounted && image != null) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return buildGalleryImageUploadDialog(image);
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Widget buildCameraImageUploadButton() {
+    return FloatingActionButton(
+      shape: const CircleBorder(),
+      backgroundColor: Colors.black,
+      heroTag: null,
+      child: const Icon(
+        Icons.add_a_photo_outlined,
+        color: Colors.white,
+      ),
+      onPressed: () async {
+        final picker = ImagePicker();
+        XFile? image = await picker.pickImage(source: ImageSource.camera);
+        final state = _key.currentState;
+        if (state != null) {
+          debugPrint('isOpen:${state.isOpen}');
+          state.toggle();
+        }
+        if (mounted && image != null) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return buildCameraImageUploadDialog(image);
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Widget buildGalleryImageUploadDialog(XFile image) {
+    return Stack(
+      children: [
+        BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: 3.0,
+            sigmaY: 3.0,
+          ),
+          child: Container(
+            color: Colors.transparent,
+          ),
+        ),
+        CupertinoAlertDialog(
+          content: Column(
+            children: [
+              const Text(
+                '¿Estás seguro de que quieres enviar esta foto?',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: Image.file(
+                  File(image.path),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+            buildUploadAction(image),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget buildCameraImageUploadDialog(XFile image) {
+    return Stack(
+      children: [
+        BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: 3.0,
+            sigmaY: 3.0,
+          ),
+          child: Container(
+            color: Colors.transparent,
+          ),
+        ),
+        CupertinoAlertDialog(
+          content: Column(
+            children: [
+              const Text(
+                '¿Estás seguro de que quieres enviar esta foto?',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: Image.file(
+                  File(image.path),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+            buildUploadAction(image),
+          ],
+        ),
+      ],
+    );
+  }
+
+  CupertinoDialogAction buildUploadAction(XFile image) {
+    return CupertinoDialogAction(
+      onPressed: () async {
+        String uniqueFileName = DateFormat('yyyy-MM-dd HH:mm:ss.SSS')
+            .format(DateTime.now())
+            .toString();
+        var now = DateTime.now();
+        var formatter = DateFormat('MMMM');
+        var monthName = formatter.format(now);
+        final storage = FirebaseStorage.instance;
+        final ref = storage.ref().child('$monthName/$uniqueFileName');
+        final task = await ref.putFile(File(image.path));
+
+        if (task.state == TaskState.success) {
+          final downloadUrl = await ref.getDownloadURL();
+
+          FirebaseFirestore.instance.collection('fotos').add({
+            'url': downloadUrl,
+            'timestamp': FieldValue.serverTimestamp(),
+            'user_id': Constants.authUserEmail,
+          });
+
+          if (mounted) {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Imagen subida con éxito.',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            );
+          }
+        }
+      },
+      child: const Text(
+        'Aceptar',
+        style: TextStyle(color: Colors.green),
       ),
     );
   }
