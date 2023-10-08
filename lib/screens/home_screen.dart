@@ -178,69 +178,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  String keepEverythingAfterFirstSlash(String inputStr) {
-    final indexOfFirstSlash = inputStr.indexOf('/');
-
-    if (indexOfFirstSlash >= 0) {
-      // If a slash is found, return the substring after it.
-      return inputStr.substring(indexOfFirstSlash + 1);
-    } else {
-      // If no slash is found, return the original string.
-      return inputStr;
-    }
-  }
-
-  String formatToCustomString(String inputDateStr) {
-    try {
-      final parts = inputDateStr.split(' ');
-      final dateParts = parts[0].split('-');
-      final timePart = parts[1].substring(0, 8); // Extract HH:MM:SS part
-      final day = dateParts[2];
-      final month = DateFormat.MMMM('en_US').format(DateTime(
-        int.parse(dateParts[0]),
-        int.parse(dateParts[1]),
-        int.parse(day),
-      ));
-      final year = dateParts[0];
-
-      final result =
-          '$day${_getDaySuffix(int.parse(day))} $month $year $timePart';
-
-      return result;
-    } catch (e) {
-      print('Error formatting date: $e');
-      return '';
-    }
-  }
-
-  String _getDaySuffix(int day) {
-    if (day >= 11 && day <= 13) {
-      return 'th';
-    }
-    final lastDigit = day % 10;
-    String suffix;
-    switch (lastDigit) {
-      case 1:
-        suffix = 'st';
-        break;
-      case 2:
-        suffix = 'nd';
-        break;
-      case 3:
-        suffix = 'rd';
-        break;
-      default:
-        suffix = 'th';
-    }
-    if (day >= 10 && day <= 20) {
-      suffix = 'th';
-    }
-
-    // Remove the leading '0' if present
-
-    return '$suffix';
-  }
-
   Widget buildImagePreviewDialog(
       List<QueryDocumentSnapshot<Object?>>? monthPhotos,
       int index,
@@ -264,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Text(
-                  formatToCustomString(keepEverythingAfterFirstSlash(name)),
+                  "${DateFormat.yMMMMd('es_ES').format(monthPhotos?[index].get('timestamp').toDate())} ${DateFormat('HH:mm:ss', 'es_ES').format(monthPhotos?[index].get('timestamp').toDate())}",
                   style: const TextStyle(fontSize: 18),
                 ),
               ),

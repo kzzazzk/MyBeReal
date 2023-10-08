@@ -41,7 +41,6 @@ dependencies:
   scroll_to_hide: ^2.0.1
   image_gallery_saver: ^2.0.3
   dio: ^5.3.3
-  intl_translation: ^0.18.2
 
 dev_dependencies:
   flutter_test:
