@@ -1,5 +1,5 @@
 # MyBeReal
-[MyBeReal](https://github.com/kzzazzk/MyBeReal./assets/72697785/f9b6da0f-f6ea-446b-88df-740472e7efcc)
+![Alt text](./lib/assets/MyBeRealLogo)
 
 
 ![Flutter](https://img.shields.io/badge/Flutter-2.x-blue.svg)
