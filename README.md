@@ -1,10 +1,8 @@
 # MyBeReal
-![Alt text](./lib/assets/MyBeRealLogo)
+![MyBeRealLogo](./lib/assets/MyBeReal.png)
 
 
-![Flutter](https://img.shields.io/badge/Flutter-2.x-blue.svg)
-![Dart](https://img.shields.io/badge/Dart-2.x-blue.svg)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
+
 
 MyBeReal is an iOS and Android app that enables you and your partner to send images to each other, view them on an ordered grid, and includes user authentication with Firebase Auth. The app utilizes Firebase Firestore and Firebase Cloud Storage to post and retrieve images. Additionally, it will feature a device-to-device push notification service with Firebase Cloud Messaging in the future.
 
@@ -28,3 +26,7 @@ MyBeReal is designed to streamline image sharing and collaboration between you a
 - **User Authentication**: Secure sign-in and sign-out using Firebase Auth.
 - **Cloud Storage**: Store and access images in Firebase Cloud Storage.
 - **Push Notifications** (Future Enhancement): Receive notifications for new image arrivals using Firebase Cloud Messaging.
+
+![Flutter](https://img.shields.io/badge/Flutter-2.x-blue.svg)
+![Dart](https://img.shields.io/badge/Dart-2.x-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
