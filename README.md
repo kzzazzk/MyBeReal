@@ -1,5 +1,5 @@
 # MyBeReal
-<img src="./lib/assets/MyBeReal.png" width="48" height="50">
+<img src="./lib/assets/MyBeReal.png" width="250" height="250">
 
 
 
