@@ -1,16 +1,29 @@
-# MyBeReal.
+# MyBeReal
+![Image Alt Text](./image_filename.png)
 
-A new Flutter project.
+![Flutter](https://img.shields.io/badge/Flutter-2.x-blue.svg)
+![Dart](https://img.shields.io/badge/Dart-2.x-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-## Getting Started
+MyBeReal is an iOS and Android app that enables you and your partner to send images to each other, view them on an ordered grid, and includes user authentication with Firebase Auth. The app utilizes Firebase Firestore and Firebase Cloud Storage to post and retrieve images. Additionally, it will feature a device-to-device push notification service with Firebase Cloud Messaging in the future.
 
-This project is a starting point for a Flutter application.
+## Table of Contents
 
-A few resources to get you started if this is your first Flutter project:
+- [Introduction](#introduction)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Introduction
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+MyBeReal is designed to streamline image sharing and collaboration between you and your partner. It offers secure user authentication with Firebase Auth and leverages Firebase Firestore and Firebase Cloud Storage to store and retrieve images efficiently. As a future enhancement, the app will provide device-to-device push notifications through Firebase Cloud Messaging.
+
+## Features
+
+- **Image Sharing**: Send images to your partner seamlessly.
+- **Image Grid**: View shared images in an organized grid layout.
+- **User Authentication**: Secure sign-in and sign-out using Firebase Auth.
+- **Cloud Storage**: Store and access images in Firebase Cloud Storage.
+- **Push Notifications** (Future Enhancement): Receive notifications for new image arrivals using Firebase Cloud Messaging.
