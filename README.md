@@ -1,4 +1,4 @@
-# my_be_real
+# MyBeReal.
 
 A new Flutter project.
 
