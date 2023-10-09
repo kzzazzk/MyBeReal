@@ -1,5 +1,5 @@
 # MyBeReal
-![MyBeRealLogo](./lib/assets/MyBeReal.png =250x250)
+<img src="./lib/assets/MyBeReal.png" width="48" height="50">
 
 
 
