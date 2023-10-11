@@ -276,42 +276,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  CupertinoDialogAction buildDownloadAction(
-      List<QueryDocumentSnapshot<Object?>>? monthPhotos, int index) {
-    return CupertinoDialogAction(
-      onPressed: () async {
-        var response = await Dio().get(
-          monthPhotos?[index].get('url'),
-          options: Options(responseType: ResponseType.bytes),
-        );
+  bool dialogPopped = false; // Initialize the flag as false
 
-        String uniqueFileName = DateFormat('yyyy-MM-dd HH:mm:ss.SSS')
-            .format(monthPhotos?[index].get('timestamp').toDate())
-            .toString();
-
-        final result = await ImageGallerySaver.saveImage(
-          Uint8List.fromList(response.data),
-          quality: 60,
-          name: uniqueFileName,
-        );
-
-        if (mounted && result != null) {
-          Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Imagen descargada con éxito.',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          );
-        }
-      },
-      child: const Text(
-        'Descargar',
-        style: TextStyle(color: Colors.blue),
-      ),
-    );
+  void resetDialogPopped() {
+    setState(() {
+      dialogPopped = false;
+    });
   }
 
   Map<String, List<QueryDocumentSnapshot>> groupPhotosByMonth(
@@ -337,131 +307,134 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          // Your background gradient
-          AnimateGradient(
-            primaryColors: const [
-              Color(0xFF96d4ca),
-              Color(0xFF7c65a9),
-            ],
-            secondaryColors: const [
-              Color(0xFF7c65a9),
-              Color(0XFFf5ccd4),
-            ],
-          ),
-          // PageView and CurvedNavigationBar
-          NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) => [
-              SliverAppBar(
-                floating: true,
-                centerTitle: true,
-                toolbarHeight: 75,
-                elevation: 0,
-                backgroundColor: Colors.transparent,
-                title: const Text(
-                  'MyBeReal.',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30,
-                    fontFamily: 'Roboto',
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                actions: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(right: 5),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.logout,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        FirebaseAuth.instance.signOut();
-                        Get.offNamed('/login');
-                      },
-                    ),
-                  ),
-                ],
-              )
-            ],
-            body: Stack(
-              children: [
-                // PageView for tab content
-                PageView(
-                  controller: _pageViewController,
-                  onPageChanged: _onItemTapped,
-                  children: [
-                    buildUserFotoGrid(0),
-                    buildUserFotoGrid(1),
-                  ],
-                ),
+        extendBody: true,
+        extendBodyBehindAppBar: true,
+        body: Stack(
+          children: [
+            // Your background gradient
+            AnimateGradient(
+              primaryColors: const [
+                Color(0xFF96d4ca),
+                Color(0xFF7c65a9),
+              ],
+              secondaryColors: const [
+                Color(0xFF7c65a9),
+                Color(0XFFf5ccd4),
               ],
             ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: MoltenBottomNavigationBar(
-        domeCircleColor: Constants.authUserEmail == dotenv.env['ZAKA_ID']
-            ? const Color(0XFFFF5C5C)
-            : const Color(0xFF6C4983),
-        barColor: Colors.black,
-        selectedIndex: _selectedIndex,
-        onTabChange: _onItemTapped,
-        tabs: [
-          MoltenTab(
-            icon: const Icon(Icons.person),
-            title: const Text(
-              'Enviados por mí',
-              style: TextStyle(color: Colors.white),
+            // PageView and CurvedNavigationBar
+            NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverAppBar(
+                  floating: true,
+                  centerTitle: true,
+                  toolbarHeight: 75,
+                  elevation: 0,
+                  backgroundColor: Colors.transparent,
+                  title: const Text(
+                    'MyBeReal.',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 27,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  actions: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.logout,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          FirebaseAuth.instance.signOut();
+                          Get.offNamed('/login');
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              ],
+              body: Stack(
+                children: [
+                  // PageView for tab content
+                  PageView(
+                    controller: _pageViewController,
+                    onPageChanged: _onItemTapped,
+                    children: [
+                      buildUserFotoGrid(0),
+                      buildUserFotoGrid(1),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          MoltenTab(
-            icon: const Icon(Icons.people),
-            title: const Text(
-              'Enviados por mi pareja',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-      floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: ExpandableFab(
-          key: _key,
-          openButtonBuilder: RotateFloatingActionButtonBuilder(
-            shape: const CircleBorder(),
-            child: const Icon(
-              Icons.add,
-              size: 30,
-              color: Colors.white,
-            ),
-            fabSize: ExpandableFabSize.regular,
-            backgroundColor: Colors.black,
-          ),
-          closeButtonBuilder: RotateFloatingActionButtonBuilder(
-            shape: const CircleBorder(),
-            child: const Icon(
-              Icons.close,
-              size: 25,
-              color: Colors.white,
-            ),
-            fabSize: ExpandableFabSize.regular,
-            backgroundColor: Colors.black,
-          ),
-          distance: 70,
-          type: ExpandableFabType.up,
-          children: [
-            buildGalleryImageUploadButton(),
-            buildCameraImageUploadButton(),
           ],
         ),
-      ),
-    );
+        bottomNavigationBar: BottomNavigationBar(
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white,
+          backgroundColor: Colors.black,
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(top: 12.0),
+                child: Icon(
+                  Icons.person,
+                  color: Colors.white,
+                ),
+              ),
+              label: 'Enviados por mí',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(top: 12.0),
+                child: Icon(
+                  Icons.people,
+                  color: Colors.white,
+                ),
+              ),
+              label: 'Enviados por mi pareja',
+            ),
+          ],
+        ),
+        floatingActionButtonLocation: ExpandableFab.location,
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: ExpandableFab(
+            key: _key,
+            openButtonBuilder: RotateFloatingActionButtonBuilder(
+              shape: const CircleBorder(),
+              child: const Icon(
+                Icons.add,
+                size: 30,
+                color: Colors.white,
+              ),
+              fabSize: ExpandableFabSize.regular,
+              backgroundColor: Colors.black,
+            ),
+            closeButtonBuilder: RotateFloatingActionButtonBuilder(
+              shape: const CircleBorder(),
+              child: const Icon(
+                Icons.close,
+                size: 25,
+                color: Colors.white,
+              ),
+              fabSize: ExpandableFabSize.regular,
+              backgroundColor: Colors.black,
+            ),
+            distance: 70,
+            type: ExpandableFabType.up,
+            children: [
+              buildGalleryImageUploadButton(),
+              buildCameraImageUploadButton(),
+            ],
+          ),
+        ));
   }
 
   Widget buildGalleryImageUploadButton() {
@@ -506,7 +479,6 @@ class _HomeScreenState extends State<HomeScreen> {
         XFile? image = await picker.pickImage(source: ImageSource.camera);
         final state = _key.currentState;
         if (state != null) {
-          debugPrint('isOpen:${state.isOpen}');
           state.toggle();
         }
         if (mounted && image != null) {
@@ -621,9 +593,55 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  CupertinoDialogAction buildDownloadAction(
+      List<QueryDocumentSnapshot<Object?>>? monthPhotos, int index) {
+    return CupertinoDialogAction(
+      onPressed: dialogPopped
+          ? null // Disable the action if the dialog has already been popped
+          : () async {
+              Navigator.of(context).pop();
+              var response = await Dio().get(
+                monthPhotos?[index].get('url'),
+                options: Options(responseType: ResponseType.bytes),
+              );
+
+              String uniqueFileName = DateFormat('yyyy-MM-dd HH:mm:ss.SSS')
+                  .format(monthPhotos?[index].get('timestamp').toDate())
+                  .toString();
+
+              final result = await ImageGallerySaver.saveImage(
+                Uint8List.fromList(response.data),
+                quality: 60,
+                name: uniqueFileName,
+              );
+
+              if (mounted && result != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Imagen descargada con éxito.',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                );
+              }
+
+              // Set the flag to true to prevent further popping
+              setState(() {
+                dialogPopped = true;
+              });
+            },
+      child: const Text(
+        'Descargar',
+        style: TextStyle(color: Colors.blue),
+      ),
+    );
+  }
+
   CupertinoDialogAction buildUploadAction(XFile image) {
     return CupertinoDialogAction(
       onPressed: () async {
+        Navigator.of(context).pop();
         String uniqueFileName = DateFormat('yyyy-MM-dd HH:mm:ss.SSS')
             .format(DateTime.now())
             .toString();
@@ -645,7 +663,6 @@ class _HomeScreenState extends State<HomeScreen> {
           });
 
           if (mounted) {
-            Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(

@@ -3,11 +3,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:my_be_real/bloc/auth/auth_bloc.dart';
 import 'package:my_be_real/screens/login/email_confirmation_screen.dart';
 import 'package:my_be_real/widgets/custom_loading_indicator_widget.dart';
 import 'package:my_be_real/widgets/custom_textfield_widget.dart';
 import 'package:typewritertext/typewritertext.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 import '../../widgets/custom_snackbar.dart';
 
@@ -35,8 +37,7 @@ class LoginScreen extends StatelessWidget {
           'MyBeReal.',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 30,
-            fontFamily: 'Roboto',
+            fontSize: 27,
             color: Colors.white,
           ),
           textAlign: TextAlign.center,
@@ -82,21 +83,33 @@ class LoginScreen extends StatelessWidget {
               } else {
                 return Column(
                   children: [
-                    const SizedBox(height: 170),
-                    const TypeWriterText(
-                      text: Text(
-                        'Bienvenido/a de nuevo. \nTe echábamos de menos.',
-                        maxLines: 10,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 35,
-                          height: 1.1,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 180),
+                      child: SizedBox(
+                        width: 500.0,
+                        height: 70,
+                        child: DefaultTextStyle(
+                          style: const TextStyle(
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30.0,
+                          ),
+                          child: AnimatedTextKit(
+                            stopPauseOnTap: true,
+                            repeatForever: true,
+                            pause: Duration(milliseconds: 5000),
+                            animatedTexts: [
+                              TypewriterAnimatedText(
+                                  'Bienvenido/a de nuevo.\n Te echábamos de menos.',
+                                  cursor: '_',
+                                  speed: const Duration(milliseconds: 150),
+                                  textAlign: TextAlign.center),
+                            ],
+                          ),
                         ),
                       ),
-                      duration: Duration(milliseconds: 50),
                     ),
-                    const SizedBox(height: 65),
+                    const SizedBox(height: 80),
                     CustomTextField(
                       controller: usernameController,
                       hintText: 'Correo electrónico',

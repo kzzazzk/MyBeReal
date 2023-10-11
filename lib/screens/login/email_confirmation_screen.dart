@@ -25,8 +25,7 @@ class EmailConfimation extends StatelessWidget {
         title: const Text(
           'MyBeReal.',
           style: TextStyle(
-            fontSize: 30,
-            fontFamily: 'Roboto',
+            fontSize: 27,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
