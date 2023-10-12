@@ -45,6 +45,8 @@ dependencies:
   molten_navigationbar_flutter: ^1.0.1
   sweet_nav_bar: ^1.0.5
   animated_text_kit: ^4.2.2
+  particles_fly: ^0.0.8
+  motion: ^1.4.0
 
 dev_dependencies:
   flutter_test:

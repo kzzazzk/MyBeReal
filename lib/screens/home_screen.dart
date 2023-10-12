@@ -17,6 +17,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:molten_navigationbar_flutter/molten_navigationbar_flutter.dart';
+import 'package:motion/motion.dart';
 import 'package:my_be_real/utils/constants.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();

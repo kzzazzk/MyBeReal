@@ -10,7 +10,7 @@ import 'package:my_be_real/widgets/custom_loading_indicator_widget.dart';
 import 'package:my_be_real/widgets/custom_textfield_widget.dart';
 import 'package:typewritertext/typewritertext.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-
+import 'package:particles_fly/particles_fly.dart';
 import '../../widgets/custom_snackbar.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -84,7 +84,7 @@ class LoginScreen extends StatelessWidget {
                 return Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 180),
+                      padding: const EdgeInsets.only(top: 155),
                       child: SizedBox(
                         width: 500.0,
                         height: 70,
@@ -92,12 +92,12 @@ class LoginScreen extends StatelessWidget {
                           style: const TextStyle(
                             fontFamily: 'Roboto',
                             fontWeight: FontWeight.bold,
-                            fontSize: 30.0,
+                            fontSize: 27.0,
                           ),
                           child: AnimatedTextKit(
                             stopPauseOnTap: true,
                             repeatForever: true,
-                            pause: Duration(milliseconds: 5000),
+                            pause: Duration(milliseconds: 2500),
                             animatedTexts: [
                               TypewriterAnimatedText(
                                   'Bienvenido/a de nuevo.\n Te echábamos de menos.',
@@ -109,7 +109,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 80),
+                    const SizedBox(height: 55),
                     CustomTextField(
                       controller: usernameController,
                       hintText: 'Correo electrónico',
