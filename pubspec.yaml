@@ -47,6 +47,7 @@ dependencies:
   animated_text_kit: ^4.2.2
   particles_fly: ^0.0.8
   motion: ^1.4.0
+  flutter_launcher_icons: ^0.11.0
 
 dev_dependencies:
   flutter_test:
@@ -61,7 +62,10 @@ flutter:
     - .env
 
 
-
+flutter_icons:
+  image_path: "lib/assets/MyBeReal.png"
+  android: true
+  ios: true
 
 
 
