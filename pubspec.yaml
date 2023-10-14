@@ -48,6 +48,8 @@ dependencies:
   particles_fly: ^0.0.8
   motion: ^1.4.0
   flutter_launcher_icons: ^0.11.0
+  flutter_local_notifications: ^16.1.0
+  firebase_messaging: ^14.6.9
 
 dev_dependencies:
   flutter_test:
