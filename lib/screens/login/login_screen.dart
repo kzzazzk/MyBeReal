@@ -2,6 +2,7 @@ import 'package:animate_gradient/animate_gradient.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_be_real/bloc/auth/auth_bloc.dart';
@@ -11,6 +12,8 @@ import 'package:my_be_real/widgets/custom_textfield_widget.dart';
 import 'package:typewritertext/typewritertext.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:particles_fly/particles_fly.dart';
+import '../../firebase/firebase_messaging.dart';
+import '../../utils/constants.dart';
 import '../../widgets/custom_snackbar.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -18,13 +21,13 @@ class LoginScreen extends StatelessWidget {
 
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-
+  final zaka_id = dotenv.env['ZAKA_ID'];
+  final adri_id = dotenv.env['ADRI_ID'];
   @override
   Widget build(BuildContext context) {
     final AuthBloc authBloc = BlocProvider.of<AuthBloc>(context);
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
@@ -148,6 +151,12 @@ class LoginScreen extends StatelessWidget {
                       height: screenHeight * 0.07,
                       child: ElevatedButton(
                         onPressed: () {
+                          Constants.authUserEmail = usernameController.text;
+                          Constants.otherUserEmail =
+                              (Constants.authUserEmail == zaka_id
+                                  ? adri_id
+                                  : zaka_id)!;
+                          Messaging.sendFireBaseMessagingToken();
                           authBloc.add(SignInRequested(usernameController.text,
                               passwordController.text));
                         },

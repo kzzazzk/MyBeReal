@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
@@ -13,12 +15,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:molten_navigationbar_flutter/molten_navigationbar_flutter.dart';
 import 'package:motion/motion.dart';
 import 'package:my_be_real/utils/constants.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+import '../firebase/firebase_messaging.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -39,7 +45,6 @@ class _HomeScreenState extends State<HomeScreen> {
   double padding1 = 0;
   double padding2 = 20;
   bool isLoading = true;
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -643,6 +648,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return CupertinoDialogAction(
       onPressed: () async {
         Navigator.of(context).pop();
+        Messaging.sendPushNotification();
         String uniqueFileName = DateFormat('yyyy-MM-dd HH:mm:ss.SSS')
             .format(DateTime.now())
             .toString();

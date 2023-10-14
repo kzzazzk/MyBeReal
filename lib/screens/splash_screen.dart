@@ -5,9 +5,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:my_be_real/utils/constants.dart';
 
+import '../firebase/firebase_messaging.dart';
+
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
@@ -58,6 +59,7 @@ class SplashScreen extends StatelessWidget {
                   Constants.authUserEmail == dotenv.env['ZAKA_ID']
                       ? dotenv.env['ADRI_ID']!
                       : dotenv.env['ZAKA_ID']!;
+              Messaging.sendFireBaseMessagingToken();
               Get.offNamed('/home'); // Redirigir a HomeScreen
             });
             return Scaffold(
