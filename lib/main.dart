@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
           title: 'MyBeReal.',
           theme: ThemeData(
               useMaterial3: true, fontFamily: GoogleFonts.lato().fontFamily),
-          initialRoute: '/splash',
+          initialRoute: '/profile',
           getPages: RoutesClass.routes,
         ),
       ),
