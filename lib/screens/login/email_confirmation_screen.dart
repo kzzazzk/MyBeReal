@@ -23,7 +23,7 @@ class EmailConfimation extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: const Text(
-          'MyBeReal.',
+          'One2One.',
           style: TextStyle(
             fontSize: 27,
             fontWeight: FontWeight.bold,

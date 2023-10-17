@@ -21,6 +21,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:molten_navigationbar_flutter/molten_navigationbar_flutter.dart';
 import 'package:motion/motion.dart';
+import 'package:my_be_real/screens/profile_screen.dart';
 import 'package:my_be_real/utils/constants.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -328,7 +329,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 Color(0XFFf5ccd4),
               ],
             ),
-            // PageView and CurvedNavigationBar
             NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
                 SliverAppBar(
@@ -338,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   elevation: 0,
                   backgroundColor: Colors.transparent,
                   title: const Text(
-                    'MyBeReal.',
+                    'One2One.',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 27,
@@ -351,12 +351,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.only(right: 5),
                       child: IconButton(
                         icon: const Icon(
-                          Icons.logout,
+                          Icons.settings,
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          FirebaseAuth.instance.signOut();
-                          Get.offNamed('/login');
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: ((context) => ProfileScreen())));
                         },
                       ),
                     ),

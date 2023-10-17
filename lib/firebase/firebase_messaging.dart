@@ -16,26 +16,33 @@ class Messaging {
     await fMessaging.requestPermission();
     await fMessaging.getToken().then((t) {
       if (t != null) {
-        final tokendata = <String, String>{"token": t};
+        final tokendata = <String, String>{"push_token": t};
         FirebaseFirestore.instance
-            .collection('push_notifications')
-            .doc(Constants.authUserEmail)
-            .set(tokendata);
+            .collection('users')
+            .where('email', isEqualTo: Constants.authUserEmail)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          // Assuming only one document matches the query.
+          final documentReference = querySnapshot.docs.first.reference;
+          documentReference.update(tokendata);
+        });
       }
     });
   }
 
   static Future<void> sendPushNotification() async {
     try {
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection('push_notifications')
-          .doc(Constants.otherUserEmail)
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: Constants.otherUserEmail)
           .get();
-      if (documentSnapshot.exists) {
+      if (querySnapshot.docs.isNotEmpty) {
+        // Assuming there's at least one matching document.
+        DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
         // Access the specific attribute from the document data
         Map<String, dynamic> documentData =
             documentSnapshot.data() as Map<String, dynamic>;
-        dynamic token = documentData['token'];
+        dynamic token = documentData['push_token'];
         print('Sent to: $token');
 
         final body = {

@@ -33,7 +33,7 @@ class SplashScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        'MyBeReal.',
+                        'One2One.',
                         style: TextStyle(
                             fontSize: 48.0,
                             fontWeight: FontWeight.bold,
@@ -54,12 +54,6 @@ class SplashScreen extends StatelessWidget {
           if (user != null) {
             // Esperar 3 segundos antes de redirigir a HomeScreen
             Future.delayed(const Duration(seconds: 3), () {
-              Constants.authUserEmail = user.email!;
-              Constants.otherUserEmail =
-                  Constants.authUserEmail == dotenv.env['ZAKA_ID']
-                      ? dotenv.env['ADRI_ID']!
-                      : dotenv.env['ZAKA_ID']!;
-              Messaging.sendFireBaseMessagingToken();
               Get.offNamed('/home'); // Redirigir a HomeScreen
             });
             return Scaffold(
@@ -79,12 +73,8 @@ class SplashScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        /*Image(
-                  image: AssetImage('assets/logo.jpeg'),
-                  height: 128.0,
-                  width: 128.0),*/
                         Text(
-                          'MyBeReal.',
+                          'One2One.',
                           style: TextStyle(
                               fontSize: 48.0,
                               fontWeight: FontWeight.bold,

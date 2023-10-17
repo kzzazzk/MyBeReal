@@ -19,11 +19,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             email: event.email, password: event.password);
         if (user != null) {
           emit(Authenticated());
-          Constants.authUserEmail = user.user!.email!;
-          Constants.otherUserEmail =
-              Constants.authUserEmail == dotenv.env['ZAKA_ID']
-                  ? dotenv.env['ADRI_ID']!
-                  : dotenv.env['ZAKA_ID']!;
         } else {
           emit(AuthError("Credenciales incorrectos.",
               errorMessage:

@@ -1,4 +1,5 @@
 import 'package:animate_gradient/animate_gradient.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,9 +22,23 @@ class LoginScreen extends StatelessWidget {
 
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-  final zaka_id = dotenv.env['ZAKA_ID'];
-  final adri_id = dotenv.env['ADRI_ID'];
+
   @override
+  Future<String> getPartnerEmail(String email) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('partner', isEqualTo: email)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot document = querySnapshot.docs.first;
+      return document.get('email');
+    } else {
+      print("No email has been found");
+      return 'noemailfound';
+    }
+  }
+
   Widget build(BuildContext context) {
     final AuthBloc authBloc = BlocProvider.of<AuthBloc>(context);
     double screenWidth = MediaQuery.of(context).size.width;
@@ -37,7 +52,7 @@ class LoginScreen extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: const Text(
-          'MyBeReal.',
+          'One2One.',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 27,
@@ -100,7 +115,7 @@ class LoginScreen extends StatelessWidget {
                           child: AnimatedTextKit(
                             stopPauseOnTap: true,
                             repeatForever: true,
-                            pause: Duration(milliseconds: 2500),
+                            pause: const Duration(milliseconds: 2500),
                             animatedTexts: [
                               TypewriterAnimatedText(
                                   'Bienvenido/a de nuevo.\n Te echábamos de menos.',
@@ -150,15 +165,13 @@ class LoginScreen extends StatelessWidget {
                       width: screenWidth * 0.90,
                       height: screenHeight * 0.07,
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Constants.authUserEmail = usernameController.text;
                           Constants.otherUserEmail =
-                              (Constants.authUserEmail == zaka_id
-                                  ? adri_id
-                                  : zaka_id)!;
-                          Messaging.sendFireBaseMessagingToken();
+                              await getPartnerEmail(usernameController.text);
                           authBloc.add(SignInRequested(usernameController.text,
                               passwordController.text));
+                          Messaging.sendFireBaseMessagingToken();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,

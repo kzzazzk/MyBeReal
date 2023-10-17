@@ -3,10 +3,11 @@ import 'dart:math';
 
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:my_be_real/utils/constants.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -15,8 +16,11 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String profileImageUrl = '';
-  bool isLoading = true; // Added to track whether the image is being loaded
+  Color buttonColor = Colors.black;
+  final usernameController = TextEditingController();
+  @override
+  String? profileImageUrl; // Initialize as null
+  bool isLoading = true;
 
   Padding getRandomIcon() {
     List<Padding> iconList = [
@@ -74,6 +78,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return iconList[randomIndex];
   }
 
+  void changeButtonColor() {
+    setState(() {
+      buttonColor = Colors.red; // Change the color when the button is clicked.
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -82,9 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> uploadImageAndSetProfileUrl(XFile image) async {
     try {
-      String uniqueFileName = DateFormat('yyyy-MM-dd HH:mm:ss.SSS')
-          .format(DateTime.now())
-          .toString();
+      String uniqueFileName = "${Constants.authUserEmail} 's profile pic";
       final storage = FirebaseStorage.instance;
       final ref = storage.ref().child('other/$uniqueFileName');
       final task = await ref.putFile(File(image.path));
@@ -92,10 +100,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final downloadUrl = await ref.getDownloadURL();
 
         await FirebaseFirestore.instance
-            .collection('profile_pictures')
-            .doc(Constants.authUserEmail)
-            .set({
-          'url': downloadUrl,
+            .collection('users')
+            .where('email', isEqualTo: Constants.authUserEmail)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          querySnapshot.docs.forEach((doc) {
+            doc.reference.update({
+              'profile_pic_url': downloadUrl,
+            });
+          });
         });
 
         if (mounted) {
@@ -128,8 +141,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  Future<String?> getProfilePictureURL(String userId) async {
+    try {
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('profile_pictures')
+          .doc(userId)
+          .get();
+
+      if (documentSnapshot.exists) {
+        Map<String, dynamic>? data =
+            documentSnapshot.data() as Map<String, dynamic>?;
+        if (data != null && data.containsKey('url')) {
+          print(data['url']);
+          return data['url'];
+        }
+      }
+
+      return null; // If the document doesn't exist or doesn't contain the URL
+    } catch (e) {
+      // Handle any potential errors
+      print("Error: $e");
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true,
@@ -142,7 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: const Text(
-          'MyBeReal.',
+          'One2One.',
           style: TextStyle(
             fontSize: 27,
             fontWeight: FontWeight.bold,
@@ -187,9 +226,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(125.0),
-                              child: profileImageUrl.isNotEmpty
+                              child: profileImageUrl == ' '
                                   ? Image.network(
-                                      profileImageUrl,
+                                      profileImageUrl!,
                                       width: 250,
                                       height: 250,
                                       fit: BoxFit.cover,
@@ -222,34 +261,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
+                SizedBox(
+                  width: screenWidth * 0.90,
+                  height: screenHeight * 0.07,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      FirebaseAuth.instance.signOut();
+                      Navigator.pop(context);
+                      Get.offNamed('/login');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                    child: const Text(
+                      'Cerrar sesión',
+                      style: TextStyle(fontSize: 17, color: Colors.white),
+                    ),
+                  ),
+                ),
               ],
             ),
           ],
         ),
       ),
     );
-  }
-
-  Future<String?> getProfilePictureURL(String userId) async {
-    try {
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection('profile_pictures')
-          .doc(userId)
-          .get();
-
-      if (documentSnapshot.exists) {
-        Map<String, dynamic>? data =
-            documentSnapshot.data() as Map<String, dynamic>?;
-        if (data != null && data.containsKey('url')) {
-          return data['url'];
-        }
-      }
-
-      return null; // If the document doesn't exist or doesn't contain the URL
-    } catch (e) {
-      // Handle any potential errors
-      print("Error: $e");
-      return null;
-    }
   }
 }
