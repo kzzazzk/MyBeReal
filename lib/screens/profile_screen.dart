@@ -206,7 +206,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Icon(
           Icons.face_4,
           color: Colors.white,
-          size: 205,
+          size: 190,
         ),
       ),
     ];
