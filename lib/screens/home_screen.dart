@@ -1,31 +1,22 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:animate_gradient/animate_gradient.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:get/get.dart';
-import 'package:http/http.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:molten_navigationbar_flutter/molten_navigationbar_flutter.dart';
-import 'package:motion/motion.dart';
 import 'package:my_be_real/screens/profile_screen.dart';
 import 'package:my_be_real/utils/constants.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../firebase/firebase_messaging.dart';
+import '../widgets/custom_animated_gradient.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -46,6 +37,129 @@ class _HomeScreenState extends State<HomeScreen> {
   double padding1 = 0;
   double padding2 = 20;
   bool isLoading = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        extendBody: true,
+        extendBodyBehindAppBar: true,
+        body: Stack(
+          children: [
+            const CustomAnimatedBackground(),
+            NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverAppBar(
+                  floating: true,
+                  centerTitle: true,
+                  toolbarHeight: 75,
+                  elevation: 0,
+                  backgroundColor: Colors.transparent,
+                  title: const Text(
+                    'One2One.',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 27,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  actions: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.settings,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: ((context) => ProfileScreen())));
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              ],
+              body: Stack(
+                children: [
+                  // PageView for tab content
+                  PageView(
+                    controller: _pageViewController,
+                    onPageChanged: _onItemTapped,
+                    children: [
+                      buildUserFotoGrid(0),
+                      buildUserFotoGrid(1),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white,
+          backgroundColor: Colors.black,
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(top: 12.0),
+                child: Icon(
+                  Icons.person,
+                  color: Colors.white,
+                ),
+              ),
+              label: 'Enviados por mí',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(top: 12.0),
+                child: Icon(
+                  Icons.people,
+                  color: Colors.white,
+                ),
+              ),
+              label: 'Enviados por mi pareja',
+            ),
+          ],
+        ),
+        floatingActionButtonLocation: ExpandableFab.location,
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: ExpandableFab(
+            key: _key,
+            openButtonBuilder: RotateFloatingActionButtonBuilder(
+              shape: const CircleBorder(),
+              child: const Icon(
+                Icons.add,
+                size: 30,
+                color: Colors.white,
+              ),
+              fabSize: ExpandableFabSize.regular,
+              backgroundColor: Colors.black,
+            ),
+            closeButtonBuilder: RotateFloatingActionButtonBuilder(
+              shape: const CircleBorder(),
+              child: const Icon(
+                Icons.close,
+                size: 25,
+                color: Colors.white,
+              ),
+              fabSize: ExpandableFabSize.regular,
+              backgroundColor: Colors.black,
+            ),
+            distance: 70,
+            type: ExpandableFabType.up,
+            children: [
+              buildGalleryImageUploadButton(),
+              buildCameraImageUploadButton(),
+            ],
+          ),
+        ));
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -65,6 +179,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _pageViewController.dispose();
     super.dispose();
+  }
+
+  String capitalizeFirstLetter(String text) {
+    if (text.isEmpty) {
+      return text;
+    }
+    return text[0].toUpperCase() + text.substring(1);
   }
 
   String? formatString(String input) {
@@ -87,6 +208,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     return formattedString;
+  }
+
+  String removeWordFromString(String inputString, String wordToRemove) {
+    String result = inputString.replaceAll(wordToRemove, '-');
+    result = result.trim();
+    return result;
   }
 
   Widget buildUserFotoGrid(int index) {
@@ -135,22 +262,6 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
-  }
-
-  String capitalizeFirstLetter(String text) {
-    if (text.isEmpty) {
-      return text;
-    }
-    return text[0].toUpperCase() + text.substring(1);
-  }
-
-  String removeWordFromString(String inputString, String wordToRemove) {
-    // Usar la función replaceAll para reemplazar la palabra con una cadena vacía
-    String result = inputString.replaceAll(wordToRemove, '-');
-
-    // Eliminar espacios en blanco adicionales resultantes
-    result = result.trim();
-    return result;
   }
 
   Widget buildBlurredPhotoGrid(
@@ -309,138 +420,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return photosByMonth;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        extendBody: true,
-        extendBodyBehindAppBar: true,
-        body: Stack(
-          children: [
-            // Your background gradient
-            AnimateGradient(
-              primaryColors: const [
-                Color(0xFF96d4ca),
-                Color(0xFF7c65a9),
-              ],
-              secondaryColors: const [
-                Color(0xFF7c65a9),
-                Color(0XFFf5ccd4),
-              ],
-            ),
-            NestedScrollView(
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                SliverAppBar(
-                  floating: true,
-                  centerTitle: true,
-                  toolbarHeight: 75,
-                  elevation: 0,
-                  backgroundColor: Colors.transparent,
-                  title: const Text(
-                    'One2One.',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 27,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  actions: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 5),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.settings,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: ((context) => ProfileScreen())));
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              ],
-              body: Stack(
-                children: [
-                  // PageView for tab content
-                  PageView(
-                    controller: _pageViewController,
-                    onPageChanged: _onItemTapped,
-                    children: [
-                      buildUserFotoGrid(0),
-                      buildUserFotoGrid(1),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white,
-          backgroundColor: Colors.black,
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(top: 12.0),
-                child: Icon(
-                  Icons.person,
-                  color: Colors.white,
-                ),
-              ),
-              label: 'Enviados por mí',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(top: 12.0),
-                child: Icon(
-                  Icons.people,
-                  color: Colors.white,
-                ),
-              ),
-              label: 'Enviados por mi pareja',
-            ),
-          ],
-        ),
-        floatingActionButtonLocation: ExpandableFab.location,
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: ExpandableFab(
-            key: _key,
-            openButtonBuilder: RotateFloatingActionButtonBuilder(
-              shape: const CircleBorder(),
-              child: const Icon(
-                Icons.add,
-                size: 30,
-                color: Colors.white,
-              ),
-              fabSize: ExpandableFabSize.regular,
-              backgroundColor: Colors.black,
-            ),
-            closeButtonBuilder: RotateFloatingActionButtonBuilder(
-              shape: const CircleBorder(),
-              child: const Icon(
-                Icons.close,
-                size: 25,
-                color: Colors.white,
-              ),
-              fabSize: ExpandableFabSize.regular,
-              backgroundColor: Colors.black,
-            ),
-            distance: 70,
-            type: ExpandableFabType.up,
-            children: [
-              buildGalleryImageUploadButton(),
-              buildCameraImageUploadButton(),
-            ],
-          ),
-        ));
   }
 
   Widget buildGalleryImageUploadButton() {

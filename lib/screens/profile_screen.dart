@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:animate_gradient/animate_gradient.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -9,6 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_be_real/utils/constants.dart';
+import 'package:my_be_real/widgets/custom_animated_gradient.dart';
+import 'package:my_be_real/widgets/custom_appbar.dart';
+import 'package:my_be_real/widgets/custom_button_widget.dart';
+import 'package:my_be_real/widgets/custom_textfield_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -16,11 +19,145 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  bool isImageUploaded = false;
   Color buttonColor = Colors.black;
   final usernameController = TextEditingController();
-  @override
+  final nameController = TextEditingController();
+  final lastnameController = TextEditingController();
   String? profileImageUrl; // Initialize as null
   bool isLoading = true;
+
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: const CustomAppBar(),
+      body: Center(
+        child: Stack(
+          children: [
+            const CustomAnimatedBackground(),
+            ListView(children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20, top: 0),
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: Container(
+                              width: 250,
+                              height: 250,
+                              decoration: BoxDecoration(
+                                color: Colors.black87,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color:
+                                      const Color(0xFF000000).withOpacity(0.5),
+                                  width: 10,
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(125.0),
+                                child: FutureBuilder<String?>(
+                                  future: getProfilePictureURL(
+                                      Constants.authUserEmail),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const CircularProgressIndicator(); // Display a loading indicator while waiting.
+                                    } else if (snapshot.hasError) {
+                                      return Text('Error: ${snapshot.error}');
+                                    } else if (snapshot.hasData) {
+                                      return Image.network(
+                                        snapshot.data!, // Use the retrieved URL
+                                        width: 250,
+                                        height: 250,
+                                        fit: BoxFit.cover,
+                                      );
+                                    } else {
+                                      return getRandomIcon(); // A fallback if there's no data available.
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 200, left: 250),
+                            child: FloatingActionButton(
+                              backgroundColor: Colors.black,
+                              shape: const CircleBorder(),
+                              onPressed: () async {
+                                final picker = ImagePicker();
+                                XFile? image = await picker.pickImage(
+                                    source: ImageSource.gallery);
+
+                                if (image != null) {
+                                  uploadImageAndSetProfileUrl(image);
+                                }
+                              },
+                              child: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: CustomTextField(
+                      controller: usernameController,
+                      hintText: 'Nombre de usuario',
+                      obscureText: false,
+                      padding: screenWidth * 0.05,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: CustomTextField(
+                      controller: nameController,
+                      hintText: 'Nombre',
+                      obscureText: false,
+                      padding: screenWidth * 0.05,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: CustomTextField(
+                      controller: lastnameController,
+                      hintText: 'Apellidos',
+                      obscureText: false,
+                      padding: screenWidth * 0.05,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: CustomButton('Guardar', () {
+                      Navigator.pop(context);
+                      Get.offNamed('/home');
+                    }),
+                  ),
+                  CustomButton('Cerrar sesión', () {
+                    FirebaseAuth.instance.signOut();
+                    Navigator.pop(context);
+                    Get.offNamed('/login');
+                  }),
+                ],
+              ),
+            ]),
+          ],
+        ),
+      ),
+    );
+  }
 
   Padding getRandomIcon() {
     List<Padding> iconList = [
@@ -136,157 +273,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final url = await getProfilePictureURL(Constants.authUserEmail);
 
     setState(() {
-      profileImageUrl = url ?? '';
+      profileImageUrl = url;
       isLoading = false; // Set isLoading to false once the image is loaded
     });
   }
 
   Future<String?> getProfilePictureURL(String userId) async {
     try {
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection('profile_pictures')
-          .doc(userId)
-          .get();
+      QuerySnapshot<Map<String, dynamic>> documentSnapshot =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .where('email', isEqualTo: Constants.authUserEmail)
+              .get();
 
-      if (documentSnapshot.exists) {
-        Map<String, dynamic>? data =
-            documentSnapshot.data() as Map<String, dynamic>?;
-        if (data != null && data.containsKey('url')) {
-          print(data['url']);
-          return data['url'];
+      if (documentSnapshot.docs.isNotEmpty) {
+        Map<String, dynamic>? data = documentSnapshot.docs.first.data();
+
+        if (data.containsKey('profile_pic_url')) {
+          // Check if the 'profile_pic_url' field exists
+          String? profilePicUrl = data['profile_pic_url'];
+          return profilePicUrl;
         }
       }
 
       return null; // If the document doesn't exist or doesn't contain the URL
     } catch (e) {
-      // Handle any potential errors
       print("Error: $e");
       return null;
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
-        centerTitle: true,
-        toolbarHeight: 75,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        title: const Text(
-          'One2One.',
-          style: TextStyle(
-            fontSize: 27,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-      body: Center(
-        child: Stack(
-          children: [
-            AnimateGradient(
-              primaryColors: const [
-                Color(0xFF96d4ca),
-                Color(0xFF7c65a9),
-              ],
-              secondaryColors: const [
-                Color(0xFF7c65a9),
-                Color(0XFFf5ccd4),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 300),
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: Container(
-                            width: 250,
-                            height: 250,
-                            decoration: BoxDecoration(
-                              color: Colors.black87,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: const Color(0xFF000000).withOpacity(0.5),
-                                width: 10,
-                              ),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(125.0),
-                              child: profileImageUrl == ' '
-                                  ? Image.network(
-                                      profileImageUrl!,
-                                      width: 250,
-                                      height: 250,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : getRandomIcon(),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 200, left: 250),
-                          child: FloatingActionButton(
-                            backgroundColor: Colors.black,
-                            shape: const CircleBorder(),
-                            onPressed: () async {
-                              final picker = ImagePicker();
-                              XFile? image = await picker.pickImage(
-                                  source: ImageSource.gallery);
-
-                              if (image != null) {
-                                uploadImageAndSetProfileUrl(image);
-                              }
-                            },
-                            child: const Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: screenWidth * 0.90,
-                  height: screenHeight * 0.07,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      FirebaseAuth.instance.signOut();
-                      Navigator.pop(context);
-                      Get.offNamed('/login');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                    child: const Text(
-                      'Cerrar sesión',
-                      style: TextStyle(fontSize: 17, color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

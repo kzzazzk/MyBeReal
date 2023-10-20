@@ -1,18 +1,16 @@
-import 'package:animate_gradient/animate_gradient.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:my_be_real/bloc/auth/auth_bloc.dart';
 import 'package:my_be_real/screens/login/email_confirmation_screen.dart';
+import 'package:my_be_real/widgets/custom_animated_gradient.dart';
+import 'package:my_be_real/widgets/custom_appbar.dart';
+import 'package:my_be_real/widgets/custom_button_widget.dart';
 import 'package:my_be_real/widgets/custom_loading_indicator_widget.dart';
 import 'package:my_be_real/widgets/custom_textfield_widget.dart';
-import 'package:typewritertext/typewritertext.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:particles_fly/particles_fly.dart';
 import '../../firebase/firebase_messaging.dart';
 import '../../utils/constants.dart';
 import '../../widgets/custom_snackbar.dart';
@@ -23,56 +21,17 @@ class LoginScreen extends StatelessWidget {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
-  @override
-  Future<String> getPartnerEmail(String email) async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('partner', isEqualTo: email)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      DocumentSnapshot document = querySnapshot.docs.first;
-      return document.get('email');
-    } else {
-      print("No email has been found");
-      return 'noemailfound';
-    }
-  }
-
   Widget build(BuildContext context) {
     final AuthBloc authBloc = BlocProvider.of<AuthBloc>(context);
+
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        centerTitle: true,
-        toolbarHeight: 75,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        title: const Text(
-          'One2One.',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 27,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
+      appBar: const CustomAppBar(),
       body: Stack(
         children: [
-          AnimateGradient(
-            primaryColors: const [
-              Color(0xFF96d4ca),
-              Color(0xFF7c65a9),
-            ],
-            secondaryColors: const [
-              Color(0xFF7c65a9),
-              Color(0XFFf5ccd4),
-            ],
-          ),
+          const CustomAnimatedBackground(),
           Center(
               child: BlocConsumer<AuthBloc, AuthState>(
             listener: (BuildContext context, AuthState state) {
@@ -102,7 +61,7 @@ class LoginScreen extends StatelessWidget {
                 return Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 155),
+                      padding: const EdgeInsets.only(top: 155, bottom: 55),
                       child: SizedBox(
                         width: 500.0,
                         height: 70,
@@ -127,14 +86,15 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 55),
-                    CustomTextField(
-                      controller: usernameController,
-                      hintText: 'Correo electrónico',
-                      obscureText: false,
-                      padding: screenWidth * 0.05,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: CustomTextField(
+                        controller: usernameController,
+                        hintText: 'Correo electrónico',
+                        obscureText: false,
+                        padding: screenWidth * 0.05,
+                      ),
                     ),
-                    const SizedBox(height: 10),
                     CustomTextField(
                       controller: passwordController,
                       hintText: 'Contraseña',
@@ -161,35 +121,9 @@ class LoginScreen extends StatelessWidget {
                             )),
                       ),
                     ),
-                    SizedBox(
-                      width: screenWidth * 0.90,
-                      height: screenHeight * 0.07,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          Constants.authUserEmail = usernameController.text;
-                          Constants.otherUserEmail =
-                              await getPartnerEmail(usernameController.text);
-                          authBloc.add(SignInRequested(usernameController.text,
-                              passwordController.text));
-                          Messaging.sendFireBaseMessagingToken();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        child: const Text('Iniciar sesión',
-                            style:
-                                TextStyle(fontSize: 17, color: Colors.white)),
-                      ),
-                    ),
-                    const SizedBox(height: 50),
-                    /*Image.network(
-                  imgUrl, // Use imgUrl to display the image
-                  width: 100,
-                  height: 100,
-                ),*/
+                    CustomButton('Iniciar sesión', () {
+                      signInButtonOnClick(authBloc);
+                    }),
                   ],
                 );
               }
@@ -198,5 +132,28 @@ class LoginScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<String> getPartnerEmail(String email) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('partner', isEqualTo: email)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot document = querySnapshot.docs.first;
+      return document.get('email');
+    } else {
+      print("No email has been found");
+      return 'noemailfound';
+    }
+  }
+
+  Future<void> signInButtonOnClick(AuthBloc authBloc) async {
+    Constants.authUserEmail = usernameController.text;
+    Constants.otherUserEmail = await getPartnerEmail(usernameController.text);
+    authBloc
+        .add(SignInRequested(usernameController.text, passwordController.text));
+    Messaging.sendFireBaseMessagingToken();
   }
 }
